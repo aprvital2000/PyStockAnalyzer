@@ -13,25 +13,28 @@ api_key = 'RUUKVAG9C6D2ECAL'
 # Vishnu
 # api_key = 'EE45PHWQN0W27PS1'
 
-plot_chart = False
+plot_chart = True
 print_result = True
 
 # MANAMANA
 symbols = ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TLSA']
 data_truncate_days = 250
-rsi_rolling_period = 10
+rsi_rolling_period = 14
 
 output_size = 'full' #default - compact 100 days data only
 data_type = 'csv' #default - json
 
+csv_file_url = 'C:/Users/panumula/Downloads/data-analysis/{}-{}.csv'
+api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={}&symbol={}&outputsize={}&datatype={}'
+
 def analyzeSymbol(symbol):
     print("analyzeSymbol --> %s" %symbol)
-    file_path = getFilePath(symbol)
+    file_path = csv_file_url.format(symbol, date.today().strftime('%d%m%y'))
     file_exists = os.path.isfile(file_path)
 
     url = file_path
     if not file_exists:
-        url = getApiUrl(symbol)
+        url = api_url.format(api_key, symbol, output_size, data_type)
     print("Get data from URL --> %s" %url)
 
     df = pd.read_csv(url)
@@ -48,37 +51,101 @@ def analyzeSymbol(symbol):
 
     close = df['close']
     ### Calculate Exponential Moving Averages (EMA)
-    ema12 = close.ewm(span=12).mean()
-    ema26 = close.ewm(span=26).mean()
-    macd = ema12 - ema26
-    macdSig = macd.ewm(span=9).mean()
-    delta = macdSig - macd
+    macd, macd_signal = getMacd(close)
     df['macd'] = macd
-    df['macd_sig'] = macdSig
+    df['macd_signal'] = macd_signal
 
-    df['reco'] = 'Buy'
-    df.loc[delta > 0, 'reco'] = 'Sell'
+    # Logic To Be Verified
+    df['macd_reco'] = 'Buy'
+    df.loc[macd < macd_signal, 'macd_reco'] = 'Sell'
     
+    ### Calculate DEMA (Double EMA)
+    dema20, dema50 = getDema(close)
+    df['dema20'] = dema20
+    df['dema50'] = dema50
+
+    # Logic To Be Verified
+    df['dema_reco'] = 'Buy'
+    df.loc[dema20 < dema50, 'dema_reco'] = 'Sell'
+
+    ### Calculate RSI
+    rsi = getRsi(close)
+    df['rsi'] = rsi
+    # Logic To Be Verified
+    df['rsi_reco'] = 'None'
+    df.loc[rsi < 30, 'rsi_reco'] = 'Sell'
+    df.loc[rsi > 70, 'rsi_reco'] = 'Buy'
+
     if print_result:
         print(df.to_string())
 
     if plot_chart:
-        df.plot(x='timestamp', y=['macd', 'macd_sig'], figsize=(18,9), style='-o', grid=True)
-        plt.xlabel('Date')
-        plt.ylabel('Technical Indicator')
-        plt.title(symbol)
-        plt.show()
+        plotCharts(df, symbol)
 
 def analyzeSymbols():
     for symbol in symbols:
         analyzeSymbol(symbol)
 
-def getFilePath(symbol):
-    file_path = '/Users/aprvital/Documents/Code/PyStockAnalysis/{}-{}.csv'
-    return file_path.format(symbol, date.today().strftime('%d%m%y'))
+def getRsi(close):
+    delta = close.diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+    avg_gain = gain.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period)
+    avg_loss = loss.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period)
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+    return rsi
 
-def getApiUrl(symbol):
-    url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={}&symbol={}&outputsize={}&datatype={}'
-    return url.format(api_key, symbol, output_size, data_type)
+def getMacd(close):
+    ema12 = close.ewm(span=12).mean()
+    ema26 = close.ewm(span=26).mean()
+    macd = ema12 - ema26
+    macd_signal = macd.ewm(span=9).mean()
+    return macd, macd_signal
 
-analyzeSymbols()
+def getDema(close):
+    ema20 = close.ewm(span=20).mean()
+    eema20 = ema20.ewm(span=20).mean()
+    dema20 = 2 * ema20 - eema20
+
+    ema50 = close.ewm(span=50).mean()
+    eema50 = ema20.ewm(span=50).mean()
+    dema50 = 2 * ema50 - eema50
+    return dema20, dema50
+
+def plotCharts(df, symbol):
+    fig, ax = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(18, 8))
+    
+    ax[0].plot(df['timestamp'], df['macd'], label='macd', color='r', linestyle='solid')
+    ax[0].plot(df['timestamp'], df['macd_signal'], label='macd_signal', color='b', linestyle='-.')
+    ax[0].set_ylabel('MACD')
+    ax[0].grid(True, linestyle='-.')
+    ax[0].legend()
+
+    ax[1].plot(df['timestamp'], df['dema20'], label='dema20', color='r', linestyle='solid')
+    ax[1].plot(df['timestamp'], df['dema50'], label='dema50', color='b', linestyle='-.')
+    ax[1].set_ylabel('DEMA')
+    ax[1].grid(True, linestyle='-.')
+    ax[1].legend()
+
+    ax[2].plot(df['timestamp'], df['rsi'], label='rsi', color='b', linestyle='solid')
+    ax[2].axhline(y=30, color='g', label='30%', linestyle='dotted', lw=2)
+    ax[2].axhline(y=70, color='r', label='70%', linestyle='dotted', lw=2)
+    ax[2].set_ylabel('RSI')
+    ax[2].grid(True, linestyle='-.')
+    ax[2].legend()
+
+    ax[3].plot(df['timestamp'], df['close'], label='closing price', color='g', linestyle='solid')
+    ax[3].set_ylabel('CLOSE')
+    ax[3].grid(True, linestyle='-.')
+    ax[3].legend()
+
+    fig.subplots_adjust(hspace=0)
+    fig.suptitle(symbol)
+    fig.supxlabel('Date')
+    fig.tight_layout()
+
+    plt.xticks(rotation=45)
+    plt.show()
+
+analyzeSymbol(symbols[0])
