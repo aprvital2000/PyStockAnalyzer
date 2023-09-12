@@ -20,6 +20,7 @@ print_result = True
 symbols = ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TLSA']
 data_truncate_days = 250
 rsi_rolling_period = 14
+bollinger_rolling_period = 20
 
 output_size = 'full' #default - compact 100 days data only
 data_type = 'csv' #default - json
@@ -76,6 +77,13 @@ def analyzeSymbol(symbol):
     df.loc[rsi < 30, 'rsi_reco'] = 'Sell'
     df.loc[rsi > 70, 'rsi_reco'] = 'Buy'
 
+    bu, bl = getBollingerBand(df)
+    df['bu'] = bu
+    df['bl'] = bl
+    df['b_reco'] = 'None'
+    df.loc[bu > close, 'b_reco'] = 'Sell'
+    df.loc[bl > close, 'b_reco'] = 'Buy'
+
     if print_result:
         print(df.to_string())
 
@@ -90,8 +98,8 @@ def getRsi(close):
     delta = close.diff()
     gain = delta.where(delta > 0, 0)
     loss = -delta.where(delta < 0, 0)
-    avg_gain = gain.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period)
-    avg_loss = loss.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period)
+    avg_gain = gain.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period + 1)
+    avg_loss = loss.rolling(rsi_rolling_period).mean().shift(-rsi_rolling_period + 1)
     rs = avg_gain / avg_loss
     rsi = 100 - (100 / (1 + rs))
     return rsi
@@ -112,6 +120,16 @@ def getDema(close):
     eema50 = ema20.ewm(span=50).mean()
     dema50 = 2 * ema50 - eema50
     return dema20, dema50
+
+def getBollingerBand(df):
+    #typical price
+    tp = (df['high'] + df['low'] + df['close']) / 3
+    b_ma = tp.rolling(bollinger_rolling_period).mean().shift(-bollinger_rolling_period + 1)
+    sigma = tp.rolling(bollinger_rolling_period).std().shift(-bollinger_rolling_period + 1)
+    
+    bu = b_ma + 2 * sigma
+    bl = b_ma - 2 * sigma
+    return bu, bl
 
 def plotCharts(df, symbol):
     fig, ax = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(18, 8))
@@ -135,8 +153,10 @@ def plotCharts(df, symbol):
     ax[2].grid(True, linestyle='-.')
     ax[2].legend()
 
-    ax[3].plot(df['timestamp'], df['close'], label='closing price', color='g', linestyle='solid')
-    ax[3].set_ylabel('CLOSE')
+    ax[3].plot(df['timestamp'], df['close'], label='closing price', color='b', linestyle='solid')
+    ax[3].plot(df['timestamp'], df['bu'], label='bollinger upper', color='r', linestyle='-.')
+    ax[3].plot(df['timestamp'], df['bl'], label='bollinger lower', color='g', linestyle='-.')
+    ax[3].set_ylabel('BOLLINGER')
     ax[3].grid(True, linestyle='-.')
     ax[3].legend()
 
