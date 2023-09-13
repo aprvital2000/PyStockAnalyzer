@@ -94,6 +94,7 @@ def analyzeSymbols():
     for symbol in symbols:
         analyzeSymbol(symbol)
 
+### Implement SMA, EMA, VWAP, MACD, STOCH, RSI, ADX, BBANDS, OBV, CCI, AROON
 def getRsi(close):
     delta = close.diff()
     gain = delta.where(delta > 0, 0)
@@ -117,7 +118,7 @@ def getDema(close):
     dema20 = 2 * ema20 - eema20
 
     ema50 = close.ewm(span=50).mean()
-    eema50 = ema20.ewm(span=50).mean()
+    eema50 = ema50.ewm(span=50).mean()
     dema50 = 2 * ema50 - eema50
     return dema20, dema50
 
