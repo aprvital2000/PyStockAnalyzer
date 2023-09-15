@@ -31,6 +31,8 @@ src_csv_file_url = '{}/{}-{}.csv'
 
 api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={}&symbol={}&outputsize={}&datatype={}'
 
+pd.set_option("display.max_columns", None)  # show all columns
+
 def analyzeSymbol(symbol):
     print('Analyzing Symbol: %s' % symbol)
     src_file_path = src_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
@@ -60,7 +62,7 @@ def analyzeSymbol(symbol):
     # pd.DataFrame: lower, mid, upper, bandwidth, and percent columns.
     typicalPrice(df)
     df.ta.bbands(close='close', length=20, std=2, append=True)
-    df.ta.macd(close='close', append=True)
+    df.ta.macd(close='close', signal_indicators=True,append=True)
     df.ta.dema(close='close', length=20, append=True)
     df.ta.dema(close='close', length=50, append=True)
     df.ta.rsi(close='close', append=True)
@@ -72,12 +74,14 @@ def analyzeSymbol(symbol):
                        "MACD_12_26_9":"macd", "MACDh_12_26_9":"macdh", "MACDs_12_26_9":"macds", "RSI_14":"rsi", "OBV": "obv",
                        "STOCHk_14_3_3":"stochk", "STOCHd_14_3_3":"stochd", "ADX_14":"adx", "DMP_14":"dmp", "DMN_14":"dmn", "DEMA_20":"dema20", "DEMA_50":"dema50", "VWAP_D":"vwap"}, inplace = True)
 
-    pd.set_option("display.max_columns", None)  # show all columns
+    macdReco(df)
+    rsiReco(df)
+    adxReco(df)
 
+    df.sort_index(ascending=False, inplace=True)
     if(write_to_file):
         dest_file_path = dest_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
-        df.sort_index(ascending=False, inplace=True)
-        df.to_csv(dest_file_path, index=True)
+        df.to_csv(dest_file_path, index=False)
 
     if print_result:
         print(df.to_string())
@@ -96,12 +100,31 @@ def typicalPrice(df):
     df['tp'] = (df['high'] + df['low'] + df['close']) / 3
     return df
 
+def macdReco(df):
+    # Logic To Be Verified
+    df['macd_reco'] = 'NA'
+    df.loc[df['MACDh_12_26_9_XA_0'] == 1, 'macd_reco'] = 'Buy'
+    df.loc[df['MACDh_12_26_9_XB_0'] == 1, 'macd_reco'] = 'Sell'
+    return df
+
+def rsiReco(df):
+    # Logic To Be Verified
+    df['rsi_reco'] = 'NA'
+    df.loc[df['rsi'] < 30, 'rsi_reco'] = 'Sell'
+    df.loc[df['rsi'] > 70, 'rsi_reco'] = 'Buy'
+
+def adxReco(df):
+    # Logic To Be Verified
+    df['adx_reco'] = 'A'
+    df.loc[df['adx'] < 25, 'adx_reco'] = 'NA'
+
 # Plot Charts
 def plotCharts(df, symbol):
     fig, ax = plt.subplots(nrows=4, ncols=2, sharex=True, figsize=(18, 8))
 
-    ax[0, 0].plot(df['timestamp'], df['macdh'], label='macdh', color='#ff000080', linestyle='solid')
-    ax[0, 0].plot(df['timestamp'], df['macds'], label='macds', color='#0000ff80', linestyle='-.')
+    ax[0, 0].plot(df['timestamp'], df['macd'], label='macd', color='#ff000080', linestyle='solid')
+    # ax[0, 0].plot(df['timestamp'], df['macdh'], label='macdh', color='#00000080', linestyle='solid')
+    ax[0, 0].plot(df['timestamp'], df['macds'], label='macds', color='#0000ff80', linestyle='solid')
     ax[0, 0].set_ylabel('MACD')
     ax[0, 0].grid(True, linestyle='-.')
     ax[0, 0].legend()
@@ -114,9 +137,11 @@ def plotCharts(df, symbol):
     ax[1, 0].grid(True, linestyle='-.')
     ax[1, 0].legend()
 
-    ax[2, 0].plot(df['timestamp'], df['stochk'], label='k', color='#ff000080', linestyle='solid')
-    ax[2, 0].plot(df['timestamp'], df['stochd'], label='d', color='#0000ff80', linestyle='-.')
-    ax[2, 0].set_ylabel('STOCH')
+    ax[2, 0].plot(df['timestamp'], df['adx'], label='adx', color='#0000ff80', linestyle='solid')
+    ax[2, 0].plot(df['timestamp'], df['dmp'], label='+di', color='#ff000080', linestyle='dotted')
+    ax[2, 0].plot(df['timestamp'], df['dmn'], label='-di', color='#00ff0080', linestyle='dotted')
+    ax[2, 0].axhline(y=25, color='#00000080', label='25', linestyle='dotted', lw=1)
+    ax[2, 0].set_ylabel('ADX')
     ax[2, 0].grid(True, linestyle='-.')
     ax[2, 0].legend()
 
@@ -145,11 +170,9 @@ def plotCharts(df, symbol):
     ax[2, 1].grid(True, linestyle='-.')
     ax[2, 1].legend()
 
-    ax[3, 1].plot(df['timestamp'], df['adx'], label='adx', color='#0000ff80', linestyle='solid')
-    ax[3, 1].plot(df['timestamp'], df['dmp'], label='+di', color='#ff000080', linestyle='dotted')
-    ax[3, 1].plot(df['timestamp'], df['dmn'], label='-di', color='#00ff0080', linestyle='dotted')
-    ax[3, 1].axhline(y=25, color='#00000080', label='25', linestyle='dotted', lw=1)
-    ax[3, 1].set_ylabel('ADX')
+    ax[3, 1].plot(df['timestamp'], df['stochk'], label='k', color='#ff000080', linestyle='solid')
+    ax[3, 1].plot(df['timestamp'], df['stochd'], label='d', color='#0000ff80', linestyle='-.')
+    ax[3, 1].set_ylabel('STOCH')
     ax[3, 1].grid(True, linestyle='-.')
     ax[3, 1].legend()
 
