@@ -25,7 +25,7 @@ data_truncate_days = 250
 output_size = 'full' # default - compact 100 days data only
 data_type = 'csv' # default - json
 
-file_dir = 'C:/Users/panumula/Downloads/data-analysis'
+file_dir = '/Users/aprvital/Documents/Code/PyStockAnalysis'
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
 
@@ -117,8 +117,8 @@ def analyzeSymbols():
 def macdReco(df):
     # Logic To Be Verified
     df['macd_reco'] = 'No Action'
-    df.loc[df['MACDh_12_26_9_XA_0'] == 1, 'macd_reco'] = 'Buy'
-    df.loc[df['MACDh_12_26_9_XB_0'] == 1, 'macd_reco'] = 'Sell'
+    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_reco'] = 'Buy'
+    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_reco'] = 'Sell'
     return df
 
 def rsiReco(df):
