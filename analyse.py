@@ -25,7 +25,7 @@ data_truncate_days = 250
 output_size = 'full' # default - compact 100 days data only
 data_type = 'csv' # default - json
 
-file_dir = '/Users/aprvital/Documents/Code/PyStockAnalysis'
+file_dir = '/tmp/data'
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
 
