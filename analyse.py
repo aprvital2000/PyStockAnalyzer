@@ -87,12 +87,24 @@ def analyzeSymbol(symbol):
     df.ta.adx(high='high', low='low', close='close', signal_indicators=True, append=True)
     df.ta.obv(close='close', volume='volume', append=True)
 
+    df.ta.aroon(high='high', low='low', append=True)
+    usignal = ta.cross_value(df['AROONOSC_14'], 0, above=True)
+    dsignal = ta.cross_value(df['AROONOSC_14'], 0, above=False)
+    df['AROONOSC_14_X0'] = usignal
+    df['AROONOSC_14_0X'] = dsignal
+
+    df.ta.cci(high='high', low='low', close='close', append=True)
+    df.ta.willr(high='high', low='low', close='close', append=True)
+
     macdReco(df)
+    aroonReco(df)
     rsiReco(df)
     adxReco(df)
     bbReco(df)
     demaReco(df)
     stochReco(df)
+    cciReco(df)
+    willrReco(df)
 
     df.sort_index(ascending=False, inplace=True)
     df.dropna(subset=['MACDs_12_26_9'], inplace=True)
@@ -116,6 +128,8 @@ def analyzeSymbols():
 
 def macdReco(df):
     # Logic To Be Verified
+    # When the MACD crosses down MACDs above 0, indicates down trend
+    # When the MACD crosses up MACDs below 0, indicates up trend
     df['macd_reco'] = 'No Action'
     df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_reco'] = 'Buy'
     df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_reco'] = 'Sell'
@@ -123,20 +137,29 @@ def macdReco(df):
 
 def rsiReco(df):
     # Logic To Be Verified
+    # RSI <= 30, Indicates Over sold, potential reversal / bounce - Buy
+    # RSI >= 70, Indicates Over bought, potential reversal / pull back - Sell
     df['rsi_reco'] = 'No Action'
-    df.loc[df['RSI_14'] <= 50, 'rsi_reco'] = 'Sell'
-    df.loc[df['RSI_14'] > 50, 'rsi_reco'] = 'Buy'
+    df.loc[df['RSI_14'] <= 30, 'rsi_reco'] = 'Sell'
+    df.loc[df['RSI_14'] >= 70, 'rsi_reco'] = 'Buy'
 
 def adxReco(df):
     # Logic To Be Verified
-    df['adx_reco'] = 'Action'
-    df.loc[df['ADX_14'] < 25, 'adx_reco'] = 'NA'
+    # ADX > 25 - Strong trend (But, No Direction)
+    # When the +DMI is above the -DMI, prices are moving up
+    # When the -DMI is above the +DMI, prices are moving down
+    df['adx_reco'] = 'No Action'
+    df.loc[(df['ADX_14'] > 25) & (df['DMP_14'] > df['DMN_14']), 'adx_reco'] = 'Buy'
+    df.loc[(df['ADX_14'] > 25) & (df['DMN_14'] > df['DMP_14']), 'adx_reco'] = 'Sell'
 
 def bbReco(df):
     # Logic To Be Verified
+    # When the close is above the BBU, Sell
+    # When the close is below the BBL, Buy
+    # What is BBP?
     df['bb_reco'] = 'No Action'
-    df.loc[df['BBP_20_2.0'] >= 1, 'bb_reco'] = 'Buy'
-    df.loc[df['BBP_20_2.0'] <= 0, 'bb_reco'] = 'Sell'
+    df.loc[df['close'] <= df['BBL_20_2.0'], 'bb_reco'] = 'Sell'
+    df.loc[df['close'] >= df['BBU_20_2.0'], 'bb_reco'] = 'Buy'
 
 def demaReco(df):
     # Logic To Be Verified
@@ -146,67 +169,100 @@ def demaReco(df):
 
 def stochReco(df):
     # Logic To Be Verified
+    # %K <= 20, Indicates Over sold, potential reversal / bounce - Buy
+    # %K >= 80, Indicates Over bought, potential reversal / pull back - Sell
+    # When %K crosses above %D from below, indicates up trend
+    # When %K crosses below %D from above, indicates down trend
     df['stoch_reco'] = 'No Action'
-    df.loc[df['STOCHk_14_3_3_XA'] == 1, 'stoch_reco'] = 'Buy'
-    df.loc[df['STOCHk_14_3_3_XB'] == 1, 'stoch_reco'] = 'Sell'
+    df.loc[(df['STOCHk_14_3_3'] <= 20) | (df['STOCHk_14_3_3_XA'] == 1), 'stoch_reco'] = 'Buy'
+    df.loc[(df['STOCHk_14_3_3'] >= 80) | (df['STOCHk_14_3_3_XB'] == 1), 'stoch_reco'] = 'Sell'
+
+def aroonReco(df):
+    # Logic To Be Verified - AROONOSC_14
+    # AROONU_14 crossing above AROOND_14 can be a signal to buy
+    # AROOND_14 crossing below AROONU_14 may be a signal to sell.
+    df['aroon_reco'] = 'No Action'
+    df.loc[df['AROONOSC_14_X0'] == 1, 'aroon_reco'] = 'Buy'
+    df.loc[df['AROONOSC_14_0X'] == 1, 'aroon_reco'] = 'Sell'
+
+def cciReco(df):
+    # Logic To Be Verified - CCI_14_0.015
+    # CCI_14_0.015 < -100 can be over sold a signal to buy
+    # CCI_14_0.015 > 100 can be over bought a signal to sell
+    df['cci_reco'] = 'No Action'
+    df.loc[df['CCI_14_0.015'] <= -100, 'cci_reco'] = 'Buy'
+    df.loc[df['CCI_14_0.015'] >= 100, 'cci_reco'] = 'Sell'
+
+def willrReco(df):
+    # Logic To Be Verified - WILLR_14
+    # WILLR_14 < -80 can be over sold a signal to buy
+    # WILLR_14 > -20 can be over bought a signal to sell
+    df['willr_reco'] = 'No Action'
+    df.loc[df['WILLR_14'] <= -80, 'willr_reco'] = 'Buy'
+    df.loc[df['WILLR_14'] >= -20, 'willr_reco'] = 'Sell'
 
 # Plot Charts
 def plotCharts(df, symbol):
-    fig, ax = plt.subplots(nrows=4, ncols=2, sharex=True, figsize=(18, 8))
+    fig, ax = plt.subplots(nrows=9, ncols=1, sharex=True, figsize=(18, 8))
 
-    ax[0, 0].plot(df['timestamp'], df['MACD_12_26_9'], label='MACD', color='#ff000080', linestyle='solid')
-    ax[0, 0].plot(df['timestamp'], df['MACDs_12_26_9'], label='MACDs', color='#0000ff80', linestyle='solid')
-    ax[0, 0].set_ylabel('MACD')
-    ax[0, 0].grid(True, linestyle='-.')
-    ax[0, 0].legend()
+    ax[0].plot(df['timestamp'], df['close'], label='CLOSE', color='#0000ff80', linestyle='solid')
+    ax[0].set_ylabel('CLOSE')
+    ax[0].grid(True, linestyle='-.')
+    ax[0].legend()
 
-    ax[1, 0].fill_between(df['timestamp'], df['RSI_14'], label='RSI', color='lightsteelblue', linestyle='solid')
-    ax[1, 0].axhline(y=30, color='#00ff0080', label='30%', linestyle='dotted', lw=1)
-    ax[1, 0].axhline(y=50, color='#0000ff80', label='50%', linestyle='dotted', lw=1)
-    ax[1, 0].axhline(y=70, color='#ff000080', label='70%', linestyle='dotted', lw=1)
-    ax[1, 0].set_ylabel('RSI')
-    ax[1, 0].grid(True, linestyle='-.')
-    ax[1, 0].legend()
+    ax[1].plot(df['timestamp'], df['MACD_12_26_9'], label='MACD', color='#ff000080', linestyle='solid')
+    ax[1].plot(df['timestamp'], df['MACDs_12_26_9'], label='MACDs', color='#0000ff80', linestyle='solid')
+    ax[1].set_ylabel('MACD')
+    ax[1].grid(True, linestyle='-.')
+    ax[1].legend()
 
-    ax[2, 0].plot(df['timestamp'], df['ADX_14'], label='ADX', color='#0000ff80', linestyle='solid')
-    ax[2, 0].plot(df['timestamp'], df['DMP_14'], label='+di', color='#ff000080', linestyle='dotted')
-    ax[2, 0].plot(df['timestamp'], df['DMN_14'], label='-di', color='#00ff0080', linestyle='dotted')
-    ax[2, 0].axhline(y=25, color='#00000080', label='25', linestyle='dotted', lw=1)
-    ax[2, 0].set_ylabel('ADX')
-    ax[2, 0].grid(True, linestyle='-.')
-    ax[2, 0].legend()
+    ax[2].fill_between(df['timestamp'], df['RSI_14'], label='RSI', color='lightsteelblue', linestyle='solid')
+    ax[2].axhline(y=30, color='#00ff0080', label='30%', linestyle='dotted', lw=1)
+    ax[2].axhline(y=50, color='#0000ff80', label='50%', linestyle='dotted', lw=1)
+    ax[2].axhline(y=70, color='#ff000080', label='70%', linestyle='dotted', lw=1)
+    ax[2].set_ylabel('RSI')
+    ax[2].grid(True, linestyle='-.')
+    ax[2].legend()
 
-    ax[3, 0].plot(df['timestamp'], df['DEMA_20'], label='DEMA_20', color='#ff000080', linestyle='solid')
-    ax[3, 0].plot(df['timestamp'], df['DEMA_50'], label='DEMA_50', color='#0000ff80', linestyle='-.')
-    ax[3, 0].set_ylabel('DEMA')
-    ax[3, 0].grid(True, linestyle='-.')
-    ax[3, 0].legend()
+    ax[3].plot(df['timestamp'], df['DMP_14'], label='+di', color='#ff000080', linestyle='solid')
+    ax[3].plot(df['timestamp'], df['ADX_14'], label='ADX', color='#00ff0080', linestyle='solid')
+    ax[3].plot(df['timestamp'], df['DMN_14'], label='-di', color='#0000ff80', linestyle='solid')
+    # ax[3].axhline(y=25, color='#00000080', label='25', linestyle='dotted', lw=1)
+    ax[3].set_ylabel('ADX')
+    ax[3].grid(True, linestyle='-.')
+    ax[3].legend()
 
-    ax[0, 1].plot(df['timestamp'], df['close'], label='CLOSE', color='#00000080', linestyle='solid')
-    ax[0, 1].plot(df['timestamp'], df['BBL_20_2.0'], label='BBL_20_2.0', color='#ff000080', linestyle='solid')
-    ax[0, 1].plot(df['timestamp'], df['BBM_20_2.0'], label='BBM_20_2.0', color='#00ff0080', linestyle='solid')
-    ax[0, 1].plot(df['timestamp'], df['BBU_20_2.0'], label='BBU_20_2.0', color='#0000ff80', linestyle='solid')
-    ax[0, 1].set_ylabel('BOLLINGER')
-    ax[0, 1].grid(True, linestyle='-.')
-    ax[0, 1].legend()
+    ax[4].plot(df['timestamp'], df['STOCHk_14_3_3'], label='k', color='#ff000080', linestyle='solid')
+    ax[4].plot(df['timestamp'], df['STOCHd_14_3_3'], label='d', color='#0000ff80', linestyle='solid')
+    ax[4].set_ylabel('STOCH')
+    ax[4].grid(True, linestyle='-.')
+    ax[4].legend()
 
-    ax[1, 1].plot(df['timestamp'], df['close'], label='CLOSE', color='#0000ff80', linestyle='-.')
-    ax[1, 1].plot(df['timestamp'], df['VWAP_D'], label='VWAP', color='#ff000080', linestyle='solid')
-    ax[1, 1].set_ylabel('VWAP')
-    ax[1, 1].grid(True, linestyle='-.')
-    ax[1, 1].legend()
+    ax[5].plot(df['timestamp'], df['close'], label='CLOSE', color='#00ff0080', linestyle='solid')
+    ax[5].plot(df['timestamp'], df['BBL_20_2.0'], label='BBL_20_2.0', color='#ff000080', linestyle='solid')
+    ax[5].plot(df['timestamp'], df['BBU_20_2.0'], label='BBU_20_2.0', color='#0000ff80', linestyle='solid')
+    ax[5].set_ylabel('BOLLINGER')
+    ax[5].grid(True, linestyle='-.')
+    ax[5].legend()
 
-    ax[2, 1].plot(df['timestamp'], df['OBV'], label='OBV', color='#ff000080', linestyle='solid')
-    ax[2, 1].plot(df['timestamp'], df['volume'], label='volume', color='#00ff0080', linestyle='solid')
-    ax[2, 1].set_ylabel('OBV')
-    ax[2, 1].grid(True, linestyle='-.')
-    ax[2, 1].legend()
+    ax[6].plot(df['timestamp'], df['AROONOSC_14'], label='AROONOSC_14', color='#0000ff80', linestyle='solid')
+    ax[6].axhline(y=0, color='#ff000080', label='0', linestyle='solid', lw=1)
+    ax[6].set_ylabel('AROON')
+    ax[6].grid(True, linestyle='-.')
+    ax[6].legend()
 
-    ax[3, 1].plot(df['timestamp'], df['STOCHk_14_3_3'], label='k', color='#ff000080', linestyle='solid')
-    ax[3, 1].plot(df['timestamp'], df['STOCHd_14_3_3'], label='d', color='#0000ff80', linestyle='-.')
-    ax[3, 1].set_ylabel('STOCH')
-    ax[3, 1].grid(True, linestyle='-.')
-    ax[3, 1].legend()
+    ax[7].plot(df['timestamp'], df['CCI_14_0.015'], label='CCI_14_0.015', color='#0000ff80', linestyle='solid')
+    ax[7].axhline(y=0, color='#ff000080', label='0', linestyle='solid', lw=1)
+    ax[7].set_ylabel('CCI')
+    ax[7].grid(True, linestyle='-.')
+    ax[7].legend()
+
+    ax[8].plot(df['timestamp'], df['WILLR_14'], label='WILLR_14', color='#0000ff80', linestyle='solid')
+    ax[8].axhline(y=-20, color='#ff000080', label='0', linestyle='solid', lw=1)
+    ax[8].axhline(y=-80, color='#ff000080', label='0', linestyle='solid', lw=1)
+    ax[8].set_ylabel('WILLR')
+    ax[8].grid(True, linestyle='-.')
+    ax[8].legend()
 
     fig.subplots_adjust(hspace=0)
     fig.suptitle(symbol)
