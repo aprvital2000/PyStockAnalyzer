@@ -14,8 +14,8 @@ api_key = 'RUUKVAG9C6D2ECAL'
 # Vishnu
 # api_key = 'EE45PHWQN0W27PS1'
 
-plot_chart = True
-print_result = True
+plot_chart = False
+print_result = False
 write_to_file = True
 
 # MANAMANAT
@@ -25,7 +25,7 @@ data_truncate_days = 250
 output_size = 'full'  # default - compact 100 days data only
 data_type = 'csv'  # default - json
 
-file_dir = '/tmp/data'
+file_dir = 'C:/Users/panumula/Downloads/data-analysis'
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
 
@@ -307,4 +307,4 @@ def plot_charts(df, symbol):
     plt.show()
 
 
-analyze_symbol(symbols[0])
+analyze_symbols()
