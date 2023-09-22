@@ -3,7 +3,7 @@ import plotly.graph_objects as go
 from dash import Dash, html, dcc, callback, Output, Input
 from plotly.subplots import make_subplots
 
-from analysis import analyze_symbol
+from analyse import analyze_symbol
 
 symbols_df = pd.DataFrame(
     {"symbols": ['SPY', 'DOW', 'MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']})
