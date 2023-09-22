@@ -1,0 +1,104 @@
+[
+  {
+    "ticker": "SPY",
+    "name": "S&P 500"
+  },
+  {
+    "ticker": "DOW",
+    "name": "Dow Jones"
+  },
+  {
+    "ticker": "MSFT",
+    "name": "Microsoft"
+  },
+  {
+    "ticker": "AAPL",
+    "name": "Apple"
+  },
+  {
+    "ticker": "NFLX",
+    "name": "Netflix"
+  },
+  {
+    "ticker": "AMZN",
+    "name": "Amazon"
+  },
+  {
+    "ticker": "META",
+    "name": "Facebook"
+  },
+  {
+    "ticker": "ADBE",
+    "name": "Adobe"
+  },
+  {
+    "ticker": "NVDA",
+    "name": "Nvidia"
+  },
+  {
+    "ticker": "GOOGL",
+    "name": "Google"
+  },
+  {
+    "ticker": "TSLA",
+    "name": "Tesla"
+  },
+  {
+    "ticker": "COST",
+    "name": "Costco"
+  },
+  {
+    "ticker": "TGT",
+    "name": "Target"
+  },
+  {
+    "ticker": "KR",
+    "name": "Krogger"
+  },
+  {
+    "ticker": "SMFG",
+    "name": "SMBC"
+  },
+  {
+    "ticker": "KO",
+    "name": "Coke"
+  },
+  {
+    "ticker": "CVS",
+    "name": "CVS"
+  },
+  {
+    "ticker": "WBA",
+    "name": "Walgreens"
+  },
+  {
+    "ticker": "SBUX",
+    "name": "Starbucks"
+  },
+  {
+    "ticker": "CVX",
+    "name": "Chevron"
+  },
+  {
+    "ticker": "XOM",
+    "name": "Exxon"
+  },
+  {
+    "ticker": "NKLA",
+    "name": "Nicola"
+  },
+  {
+    "ticker": "LCID",
+    "name": "Lucid"
+  },
+  {
+    "ticker": "MMM",
+    "name": "3M"
+  },
+  {
+    "ticker": "BAC",
+    "name": "Bank Of America"
+  }
+]
+
+
