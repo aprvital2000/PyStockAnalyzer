@@ -19,7 +19,7 @@ print_result = False
 write_to_file = True
 
 # MANAMANAT
-symbols = ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']
+symbols = ['SPY', 'DOW', 'MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']
 data_truncate_days = 250
 
 output_size = 'full'  # default - compact 100 days data only
@@ -70,7 +70,7 @@ def analyze_symbol(symbol):
 
     df.ta.macd(close='close', fast=5, slow=3, signal=1, signal_indicators=True, append=True)
 
-    df.ta.stc(close='close', append=True)
+    # df.ta.stc(close='close', append=True)
     df.ta.rsi(close='close', signal_indicators=True, append=True)
 
     df.ta.stoch(close='close', signal_indicators=True, append=True)
@@ -305,4 +305,4 @@ def plot_charts(df, symbol):
     plt.show()
 
 
-analyze_symbols()
+analyze_symbol('DOW')

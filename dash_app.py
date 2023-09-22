@@ -3,7 +3,7 @@ from dash import Dash, html, dcc, callback, Output, Input
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-df2 = pd.DataFrame({"symbols": ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']})
+df2 = pd.DataFrame({"symbols": ['SPY', 'DOW', 'MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']})
 
 app = Dash(__name__)
 
@@ -47,6 +47,7 @@ def update_graph(value):
     fig.update_layout(height=800, showlegend=False, margin=dict(l=0, r=0, t=0, b=0), xaxis=dict(tickformat='%d-%b'))
 
     return fig
+
 
 if __name__ == '__main__':
     app.run(debug=True)
