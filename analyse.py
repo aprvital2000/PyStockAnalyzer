@@ -1,11 +1,10 @@
-import pandas as pd
-import matplotlib.pyplot as plt
-import pandas_ta as ta
 import os.path
-
 from datetime import date
 
-# https://github.com/twopirllc/pandas-ta
+import matplotlib.pyplot as plt
+import pandas as pd
+import pandas_ta as ta
+
 plt.style.use('default')
 
 # Vital
@@ -18,14 +17,12 @@ plot_chart = False
 print_result = False
 write_to_file = True
 
-# MANAMANAT
-symbols = ['SPY', 'DOW', 'MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']
-data_truncate_days = 250
+data_truncate_days = 300
 
 output_size = 'full'  # default - compact 100 days data only
 data_type = 'csv'  # default - json
 
-file_dir = '/tmp/data'
+file_dir = os.getcwd()
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
 
@@ -64,14 +61,9 @@ def analyze_symbol(symbol):
     df.ta.bbands(close='close', length=20, std=2, signal_indicators=True, append=True)
 
     df.ta.macd(close='close', signal_indicators=True, append=True)
-    df['iMACDs_12_26_9'] = ta.sma(df['MACD_12_26_9'])
-    df['iMACDh_12_26_9'] = df['MACD_12_26_9'] - df['iMACDs_12_26_9']
     df.ta.roc(close='close', append=True)
-
-    df.ta.macd(close='close', fast=5, slow=3, signal=1, signal_indicators=True, append=True)
-
-    # df.ta.stc(close='close', append=True)
     df.ta.rsi(close='close', signal_indicators=True, append=True)
+    # df.ta.stc(close='close', append=True)
 
     df.ta.stoch(close='close', signal_indicators=True, append=True)
     xsignal = ta.cross(df['STOCHk_14_3_3'], df['STOCHd_14_3_3'])
@@ -87,18 +79,16 @@ def analyze_symbol(symbol):
 
     df.ta.adx(high='high', low='low', close='close', signal_indicators=True, append=True)
     df.ta.obv(close='close', volume='volume', append=True)
-
-    df.ta.aroon(high='high', low='low', append=True)
-    usignal = ta.cross_value(df['AROONOSC_14'], 0, above=True)
-    dsignal = ta.cross_value(df['AROONOSC_14'], 0, above=False)
-    df['AROONOSC_14_X0'] = usignal
-    df['AROONOSC_14_0X'] = dsignal
-
     df.ta.cci(high='high', low='low', close='close', append=True)
     df.ta.willr(high='high', low='low', close='close', append=True)
 
+    df.ta.aroon(high='high', low='low', append=True)
+    # usignal = ta.cross_value(df['AROONOSC_14'], 0, above=True)
+    # dsignal = ta.cross_value(df['AROONOSC_14'], 0, above=False)
+    # df['AROONOSC_14_X0'] = usignal
+    # df['AROONOSC_14_0X'] = dsignal
+
     macd_reco(df)
-    impulse_macd_reco(df)
     aroon_reco(df)
     rsi_reco(df)
     adx_reco(df)
@@ -121,31 +111,17 @@ def analyze_symbol(symbol):
     if plot_chart:
         plot_charts(df, symbol)
 
-
-def analyze_symbols():
-    for symbol in symbols:
-        analyze_symbol(symbol)
+    return df
 
 
 def macd_reco(df):
     # Logic To Be Verified
     # When the MACD crosses down MACDs above 0, indicates downtrend
     # When the MACD crosses up MACDs below 0, indicates uptrend
-    df['macd_reco'] = 'No Action'
-    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_reco'] = 'Buy'
-    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_reco'] = 'Sell'
-    return df
-
-
-def impulse_macd_reco(df):
-    # Logic To Be Verified
-    # When the MACD crosses down MACDs above 0, indicates downtrend
-    # When the MACD crosses up MACDs below 0, indicates uptrend
-    df['imacd_reco'] = 'No Action'
-    # df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['iMACDh_12_26_9'] > 0) & (df['ROC_10'] > 0), 'imacd_reco'] = 'Buy'
-    # df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['iMACDh_12_26_9'] < 0) & (df['ROC_10'] < 0), 'imacd_reco'] = 'Sell'
-    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACDh_12_26_9'] > 0) & (df['ROC_10'] > 0), 'imacd_reco'] = 'Buy'
-    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACDh_12_26_9'] < 0) & (df['ROC_10'] < 0), 'imacd_reco'] = 'Sell'
+    df['macd_buy_reco'] = None
+    df['macd_sell_reco'] = None
+    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_buy_reco'] = df['close']
+    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_sell_reco'] = df['close']
     return df
 
 
@@ -194,8 +170,8 @@ def aroon_reco(df):
     # AROONU_14 crossing above AROOND_14 can be a signal to buy
     # AROOND_14 crossing below AROONU_14 may be a signal to sell.
     df['aroon_reco'] = 'No Action'
-    df.loc[df['AROONOSC_14_X0'] == 1, 'aroon_reco'] = 'Buy'
-    df.loc[df['AROONOSC_14_0X'] == 1, 'aroon_reco'] = 'Sell'
+    # df.loc[df['AROONOSC_14_X0'] == 1, 'aroon_reco'] = 'Buy'
+    # df.loc[df['AROONOSC_14_0X'] == 1, 'aroon_reco'] = 'Sell'
 
 
 def cci_reco(df):
@@ -220,30 +196,6 @@ def willr_reco(df):
 def plot_charts(df, symbol):
     fig, ax = plt.subplots(nrows=4, ncols=1, sharex=True, figsize=(18, 8))
 
-    ax[0].plot(df['timestamp'], df['close'], label='CLOSE', color='#0000ff80', linestyle='solid')
-    ax[0].set_ylabel('CLOSE')
-    ax[0].grid(True, linestyle='-.')
-    ax[0].legend()
-
-    ax[1].plot(df['timestamp'], df['MACD_12_26_9'], label='MACD', color='#ff000080', linestyle='solid')
-    ax[1].plot(df['timestamp'], df['MACDs_12_26_9'], label='MACDs', color='#0000ff80', linestyle='solid')
-    ax[1].axhline(y=0, color='#00ff0080', label='0', linestyle='solid', lw=1)
-    ax[1].set_ylabel('MACD_12_26_9')
-    ax[1].grid(True, linestyle='-.')
-    ax[1].legend()
-
-    ax[2].plot(df['timestamp'], df['AROONOSC_14'], label='AROONOSC_14', color='#0000ff80', linestyle='solid')
-    ax[2].axhline(y=0, color='#ff000080', label='0', linestyle='solid', lw=1)
-    ax[2].set_ylabel('AROON')
-    ax[2].grid(True, linestyle='-.')
-    ax[2].legend()
-
-    ax[3].plot(df['timestamp'], df['ROC_10'], label='ROC_10', color='#0000ff80', linestyle='solid')
-    ax[3].axhline(y=0, color='#00ff0080', label='0', linestyle='solid', lw=1)
-    ax[3].set_ylabel('ROC')
-    ax[3].grid(True, linestyle='-.')
-    ax[3].legend()
-
     # ax[3].plot(df['timestamp'], df['STC_10_12_26_0.5'], label='STC_10_12_26_0.5', color='#ff000080', linestyle='solid')
     # ax[3].plot(df['timestamp'], df['STCmacd_10_12_26_0.5'], label='STCmacd_10_12_26_0.5', color='#0000ff80', linestyle='solid')
     # ax[3].plot(df['timestamp'], df['STCstoch_10_12_26_0.5'], label='STCstoch_10_12_26_0.5', color='#00ff0080', linestyle='solid')
@@ -251,14 +203,6 @@ def plot_charts(df, symbol):
     # ax[3].axhline(y=25, color='#00000080', label='<25 - oversold', linestyle='solid', lw=1)
     # ax[3].axhline(y=75, color='#00000080', label='>75 - overbought', linestyle='solid', lw=1)
     # ax[3].set_ylabel('STC')
-    # ax[3].grid(True, linestyle='-.')
-    # ax[3].legend()
-
-    # ax[3].fill_between(df['timestamp'], df['RSI_14'], label='RSI', color='lightsteelblue', linestyle='solid')
-    # ax[3].axhline(y=30, color='#00ff0080', label='30%', linestyle='dotted', lw=1)
-    # ax[3].axhline(y=50, color='#0000ff80', label='50%', linestyle='dotted', lw=1)
-    # ax[3].axhline(y=70, color='#ff000080', label='70%', linestyle='dotted', lw=1)
-    # ax[3].set_ylabel('RSI')
     # ax[3].grid(True, linestyle='-.')
     # ax[3].legend()
 
@@ -275,13 +219,6 @@ def plot_charts(df, symbol):
     # ax[5].set_ylabel('STOCH')
     # ax[5].grid(True, linestyle='-.')
     # ax[5].legend()
-
-    # ax[6].plot(df['timestamp'], df['close'], label='CLOSE', color='#00ff0080', linestyle='solid')
-    # ax[6].plot(df['timestamp'], df['BBL_20_2.0'], label='BBL_20_2.0', color='#ff000080', linestyle='solid')
-    # ax[6].plot(df['timestamp'], df['BBU_20_2.0'], label='BBU_20_2.0', color='#0000ff80', linestyle='solid')
-    # ax[6].set_ylabel('BOLLINGER')
-    # ax[6].grid(True, linestyle='-.')
-    # ax[6].legend()
 
     # ax[8].plot(df['timestamp'], df['CCI_14_0.015'], label='CCI_14_0.015', color='#0000ff80', linestyle='solid')
     # ax[8].axhline(y=0, color='#ff000080', label='0', linestyle='solid', lw=1)
@@ -303,6 +240,3 @@ def plot_charts(df, symbol):
 
     # plt.xticks(rotation=45)
     plt.show()
-
-
-analyze_symbol('DOW')
