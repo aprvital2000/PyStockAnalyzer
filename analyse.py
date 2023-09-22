@@ -19,13 +19,13 @@ print_result = False
 write_to_file = True
 
 # MANAMANAT
-symbols = ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TLSA']
+symbols = ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']
 data_truncate_days = 250
 
 output_size = 'full'  # default - compact 100 days data only
 data_type = 'csv'  # default - json
 
-file_dir = 'C:/Users/panumula/Downloads/data-analysis'
+file_dir = '/tmp/data'
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
 
@@ -126,8 +126,6 @@ def analyze_symbols():
     for symbol in symbols:
         analyze_symbol(symbol)
 
-
-# TODO - Implement CCI, AROON
 
 def macd_reco(df):
     # Logic To Be Verified
