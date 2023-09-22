@@ -1,10 +1,9 @@
 import pandas as pd
-import plotly.express as px
 from dash import Dash, html, dcc, callback, Output, Input
 from plotly.subplots import make_subplots
 import plotly.graph_objects as go
 
-df2 = pd.DataFrame({"symbols": ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TLSA']})
+df2 = pd.DataFrame({"symbols": ['MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']})
 
 app = Dash(__name__)
 
@@ -20,7 +19,7 @@ app.layout = html.Div([
     Input('dropdown-selection', 'value')
 )
 def update_graph(value):
-    url = 'C:/Users/panumula/Downloads/data-analysis/{}-enriched-210923.csv'.format(value)
+    url = '/tmp/data/{}-enriched-210923.csv'.format(value)
     print("URL => " + url)
     df1 = pd.read_csv(url)
 
