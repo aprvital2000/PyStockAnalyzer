@@ -36,7 +36,6 @@ pd.set_option("display.max_columns", None)  # show all columns
 
 def analyze_symbol(symbol):
     print('Analyzing Symbol: %s' % symbol)
-    cleanup_files()
     src_file_path = src_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
     file_exists = os.path.isfile(src_file_path)
 
@@ -247,13 +246,8 @@ def plot_charts(df, symbol):
 
 
 def cleanup_files():
-    # folder is the name of the folder in which we
-    # have to perform the delete operation
-    folder = os.getcwd()
-
     # get a list of files present in the given folder
     list_of_files = os.listdir()
-
     # loop over all the files
     for i in list_of_files:
         # get the location of the file
@@ -265,3 +259,6 @@ def cleanup_files():
         if (i.endswith('.csv')) & (file_time < time.time() - 86400 * purge_files_after_days):
             print(f" Delete : {i}")
             os.remove(file_location)
+
+
+cleanup_files()
