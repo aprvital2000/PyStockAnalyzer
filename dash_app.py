@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, html, dcc, callback, Output, Input
@@ -5,14 +7,13 @@ from plotly.subplots import make_subplots
 
 from analyse import analyze_symbol
 
-symbols_df = pd.DataFrame(
-    {"symbols": ['SPY', 'DOW', 'MSFT', 'AAPL', 'NFLX', 'AMZN', 'META', 'ADBE', 'NVDA', 'GOOGL', 'TSLA']})
-
 app = Dash(__name__)
+symbols_df = pd.read_json('securities.json')
+symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
 
 app.layout = html.Div([
     html.H1(style={'textAlign': 'center'}),
-    dcc.Dropdown(symbols_df.symbols.unique(), symbols_df.symbols[0], id='dropdown-selection'),
+    dcc.Dropdown(options=symbols_df['ticker'], value=symbols_df.iloc[0]['ticker'], id='dropdown-selection'),
     dcc.Graph(id='graph-content')
 ])
 
@@ -25,11 +26,11 @@ def update_graph(symbol):
     df = analyze_symbol(symbol)
 
     # Create figure with secondary y-axis
-    fig = make_subplots(rows=7, cols=1, horizontal_spacing=0, vertical_spacing=0.03, print_grid=True,
+    fig = make_subplots(rows=10, cols=1, horizontal_spacing=0, vertical_spacing=0.03, print_grid=True,
                         shared_xaxes=True,
                         # x_title="Date",
-                        row_heights=[200, 200, 200, 200, 200, 200, 200],
-                        row_titles=("Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS"),
+                        row_heights=[200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
+                        row_titles=("Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS", "CCI", "WILL-R", "STOCH"),
                         subplot_titles=("<b>Closing Price</b> - Buy at Green up arrow, Sell at Red down arrow",
                                         "<b>MACD</b> - Buy when red line crosses down blue line above 0, Sell when red line crosses up blue line below 0",
                                         "<b>Rate Of Change</b> - Buy when ROC crosses 0 upwards, Sell when ROC crosses 0 downwards",
@@ -37,6 +38,9 @@ def update_graph(symbol):
                                         "<b>Relative Strength Indicator</b> - Buy when RSI >=50, Strong Buy when RSI >=70, Sell when RSI <= 50, Strong Sell when RSI <= 30",
                                         "<b>Average Directional Index</b> - Buy/Sell when ADX >=25",
                                         "<b>Bollinger Bands</b> - Buy when blue line crosses lower band, Sell when blue line crosses upper band",
+                                        "<b>CCI</b> - Buy when CCI <= -100, Sell when CCI >= 100",
+                                        "<b>WILL-R</b> - Buy when WILLR <= -80, Sell when WILLR >= -20",
+                                        "<b>STOCH</b> - Buy when STOCHk <= 20, Sell when STOCHk >= 80",
                                         )
                         )
 
@@ -53,7 +57,7 @@ def update_graph(symbol):
                              marker=dict(color='#FFA1FA')), row=2, col=1)
     fig.add_trace(go.Scatter(x=df['timestamp'], y=df['MACDs_12_26_9'], name="MACD Signal",
                              marker=dict(color='#636EFA')), row=2, col=1)
-    fig.add_trace(go.Bar(x=df['timestamp'], y=df['MACDh_12_26_9'], name="MACD Histogram",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['MACDh_12_26_9'], name="MACD Histogram", stackgroup='one',
                          marker=dict(color='#7F7F7F')), row=2, col=1)
     fig.add_hline(y=0, row=2, col=1, line_width=1)
 
@@ -88,8 +92,26 @@ def update_graph(symbol):
     fig.add_trace(go.Scatter(x=df['timestamp'], y=df['close'], name="close",
                              marker=dict(color='#636EFA')), row=7, col=1)
 
-    fig.update_annotations(font_size=12)
-    fig.update_layout(showlegend=False, height=800, margin=dict(t=30, r=5, l=5, b=0))
+    # CCI
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['CCI_14_0.015'], name="CCI_14_0.015",
+                             marker=dict(color='#636EFA')), row=8, col=1)
+    fig.add_hline(y=100, row=8, col=1, line_width=1)
+    fig.add_hline(y=-100, row=8, col=1, line_width=1)
+
+    # WILLR
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['WILLR_14'], name="WILLR_14",
+                             marker=dict(color='#636EFA')), row=9, col=1)
+    fig.add_hline(y=-80, row=9, col=1, line_width=1)
+    fig.add_hline(y=-20, row=9, col=1, line_width=1)
+
+    # STOCH
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['STOCHk_14_3_3'], name="STOCHk_14_3_3",
+                             marker=dict(color='#636EFA')), row=10, col=1)
+    fig.add_hline(y=80, row=10, col=1, line_width=1)
+    fig.add_hline(y=20, row=10, col=1, line_width=1)
+
+    fig.update_annotations(font_size=11)
+    fig.update_layout(showlegend=False, height=1200, margin=dict(t=30, r=5, l=5, b=0))
     return fig
 
 
