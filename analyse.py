@@ -34,6 +34,14 @@ api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={
 pd.set_option("display.max_columns", None)  # show all columns
 
 
+def analyze_symbols():
+    symbols_df = pd.read_json('securities.json')
+    symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
+    for symbol in symbols_df['ticker']:
+        analyze_symbol(symbol)
+        time.sleep(10)
+
+
 def analyze_symbol(symbol):
     print('Analyzing Symbol: %s' % symbol)
     src_file_path = src_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
@@ -60,13 +68,11 @@ def analyze_symbol(symbol):
     df.set_index(pd.DatetimeIndex(df["timestamp"]), inplace=True)
     df.sort_index(ascending=True, inplace=True)
 
-    # pd.DataFrame: lower, mid, upper, bandwidth, and percent columns.
     df.ta.bbands(close='close', length=20, std=2, signal_indicators=True, append=True)
-
     df.ta.macd(close='close', signal_indicators=True, append=True)
     df.ta.roc(close='close', append=True)
     df.ta.rsi(close='close', signal_indicators=True, append=True)
-    # df.ta.stc(close='close', append=True)
+    df.ta.stc(close='close', append=True)
 
     df.ta.stoch(close='close', signal_indicators=True, append=True)
     xsignal = ta.cross(df['STOCHk_14_3_3'], df['STOCHd_14_3_3'])
@@ -75,30 +81,15 @@ def analyze_symbol(symbol):
     df['STOCHk_14_3_3_XB'] = xsignal
 
     df.ta.vwap(high='high', low='low', close='close', volume='volume', append=True)
-    # xsignal = ta.signals(df['VWAP_D'], df['close'])
-    # df['VWAP_D_XA'] = xsignal
-    # xsignal = ta.cross(df['close'], df['VWAP_D'])
-    # df['VWAP_D_XB'] = xsignal
-
     df.ta.adx(high='high', low='low', close='close', signal_indicators=True, append=True)
     df.ta.obv(close='close', volume='volume', append=True)
     df.ta.cci(high='high', low='low', close='close', append=True)
     df.ta.willr(high='high', low='low', close='close', append=True)
-
     df.ta.aroon(high='high', low='low', append=True)
-    # usignal = ta.cross_value(df['AROONOSC_14'], 0, above=True)
-    # dsignal = ta.cross_value(df['AROONOSC_14'], 0, above=False)
-    # df['AROONOSC_14_X0'] = usignal
-    # df['AROONOSC_14_0X'] = dsignal
 
     macd_reco(df)
-    aroon_reco(df)
-    rsi_reco(df)
     adx_reco(df)
-    bb_reco(df)
     stoch_reco(df)
-    cci_reco(df)
-    willr_reco(df)
 
     df.sort_index(ascending=False, inplace=True)
     df.dropna(subset=['MACDs_12_26_9'], inplace=True)
@@ -128,15 +119,6 @@ def macd_reco(df):
     return df
 
 
-def rsi_reco(df):
-    # Logic To Be Verified
-    # RSI <= 30, Indicates Over sold, potential reversal / bounce - Buy
-    # RSI >= 70, Indicates Over bought, potential reversal / pull back - Sell
-    df['rsi_reco'] = 'No Action'
-    df.loc[df['RSI_14'] <= 30, 'rsi_reco'] = 'Sell'
-    df.loc[df['RSI_14'] >= 70, 'rsi_reco'] = 'Buy'
-
-
 def adx_reco(df):
     # Logic To Be Verified
     # ADX > 25 - Strong trend (But, No Direction)
@@ -145,16 +127,6 @@ def adx_reco(df):
     df['adx_reco'] = 'No Action'
     df.loc[(df['ADX_14'] > 25) & (df['DMP_14'] > df['DMN_14']), 'adx_reco'] = 'Buy'
     df.loc[(df['ADX_14'] > 25) & (df['DMN_14'] > df['DMP_14']), 'adx_reco'] = 'Sell'
-
-
-def bb_reco(df):
-    # Logic To Be Verified
-    # When the close is above the BBU, Sell
-    # When the close is below the BBL, Buy
-    # What is BBP?
-    df['bb_reco'] = 'No Action'
-    df.loc[df['close'] <= df['BBL_20_2.0'], 'bb_reco'] = 'Sell'
-    df.loc[df['close'] >= df['BBU_20_2.0'], 'bb_reco'] = 'Buy'
 
 
 def stoch_reco(df):
@@ -166,33 +138,6 @@ def stoch_reco(df):
     df['stoch_reco'] = 'No Action'
     df.loc[(df['STOCHk_14_3_3'] <= 20) | (df['STOCHk_14_3_3_XA'] == 1), 'stoch_reco'] = 'Buy'
     df.loc[(df['STOCHk_14_3_3'] >= 80) | (df['STOCHk_14_3_3_XB'] == 1), 'stoch_reco'] = 'Sell'
-
-
-def aroon_reco(df):
-    # Logic To Be Verified - AROONOSC_14
-    # AROONU_14 crossing above AROOND_14 can be a signal to buy
-    # AROOND_14 crossing below AROONU_14 may be a signal to sell.
-    df['aroon_reco'] = 'No Action'
-    # df.loc[df['AROONOSC_14_X0'] == 1, 'aroon_reco'] = 'Buy'
-    # df.loc[df['AROONOSC_14_0X'] == 1, 'aroon_reco'] = 'Sell'
-
-
-def cci_reco(df):
-    # Logic To Be Verified - CCI_14_0.015
-    # CCI_14_0.015 < -100 can be over sold a signal to buy
-    # CCI_14_0.015 > 100 can be over bought a signal to sell
-    df['cci_reco'] = 'No Action'
-    df.loc[df['CCI_14_0.015'] <= -100, 'cci_reco'] = 'Buy'
-    df.loc[df['CCI_14_0.015'] >= 100, 'cci_reco'] = 'Sell'
-
-
-def willr_reco(df):
-    # Logic To Be Verified - WILLR_14
-    # WILLR_14 < -80 can be over sold a signal to buy
-    # WILLR_14 > -20 can be over bought a signal to sell
-    df['willr_reco'] = 'No Action'
-    df.loc[df['WILLR_14'] <= -80, 'willr_reco'] = 'Buy'
-    df.loc[df['WILLR_14'] >= -20, 'willr_reco'] = 'Sell'
 
 
 # Plot Charts
@@ -223,19 +168,6 @@ def plot_charts(df, symbol):
     # ax[5].grid(True, linestyle='-.')
     # ax[5].legend()
 
-    # ax[8].plot(df['timestamp'], df['CCI_14_0.015'], label='CCI_14_0.015', color='#0000ff80', linestyle='solid')
-    # ax[8].axhline(y=0, color='#ff000080', label='0', linestyle='solid', lw=1)
-    # ax[8].set_ylabel('CCI')
-    # ax[8].grid(True, linestyle='-.')
-    # ax[8].legend()
-
-    # ax[9].plot(df['timestamp'], df['WILLR_14'], label='WILLR_14', color='#0000ff80', linestyle='solid')
-    # ax[9].axhline(y=-20, color='#ff000080', label='0', linestyle='solid', lw=1)
-    # ax[9].axhline(y=-80, color='#ff000080', label='0', linestyle='solid', lw=1)
-    # ax[9].set_ylabel('WILLR')
-    # ax[9].grid(True, linestyle='-.')
-    # ax[9].legend()
-
     fig.subplots_adjust(hspace=0)
     fig.suptitle(symbol)
     # fig.supxlabel('Date')
@@ -259,6 +191,3 @@ def cleanup_files():
         if (i.endswith('.csv')) & (file_time < time.time() - 86400 * purge_files_after_days):
             print(f" Delete : {i}")
             os.remove(file_location)
-
-
-cleanup_files()

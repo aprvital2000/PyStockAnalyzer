@@ -1,5 +1,3 @@
-import os
-
 import pandas as pd
 import plotly.graph_objects as go
 from dash import Dash, html, dcc, callback, Output, Input
@@ -30,9 +28,10 @@ def update_graph(symbol):
                         shared_xaxes=True,
                         # x_title="Date",
                         row_heights=[200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-                        row_titles=("Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS", "CCI", "WILL-R", "STOCH"),
+                        row_titles=(
+                        "Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS", "CCI", "WILL-R", "STOCH"),
                         subplot_titles=("<b>Closing Price</b> - Buy at Green up arrow, Sell at Red down arrow",
-                                        "<b>MACD</b> - Buy when red line crosses down blue line above 0, Sell when red line crosses up blue line below 0",
+                                        "<b>MACD</b> - Buy when red line crosses blue line upwards below 0, Sell when red line crosses blue line downwards below 0",
                                         "<b>Rate Of Change</b> - Buy when ROC crosses 0 upwards, Sell when ROC crosses 0 downwards",
                                         "<b>AROON</b> - Buy when AROON crosses 0 upwards, Sell when AROON crosses 0 downwards",
                                         "<b>Relative Strength Indicator</b> - Buy when RSI >=50, Strong Buy when RSI >=70, Sell when RSI <= 50, Strong Sell when RSI <= 30",
@@ -57,30 +56,31 @@ def update_graph(symbol):
                              marker=dict(color='#FFA1FA')), row=2, col=1)
     fig.add_trace(go.Scatter(x=df['timestamp'], y=df['MACDs_12_26_9'], name="MACD Signal",
                              marker=dict(color='#636EFA')), row=2, col=1)
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['MACDh_12_26_9'], name="MACD Histogram", stackgroup='one',
-                         marker=dict(color='#7F7F7F')), row=2, col=1)
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['MACDh_12_26_9'], name="MACD Histogram", stackgroup='1',
+                             marker=dict(color='#7F7F7F')), row=2, col=1)
     fig.add_hline(y=0, row=2, col=1, line_width=1)
 
     # ROC
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['ROC_10'], name="ROC_10",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['ROC_10'], name="ROC_10", stackgroup='2',
                              marker=dict(color='#636EFA')), row=3, col=1)
     fig.add_hline(y=0, row=3, col=1, line_width=1)
 
     # AROON
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['AROONOSC_14'], name="AROONOSC_14",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['AROONOSC_14'], name="AROONOSC_14", stackgroup='3',
                              marker=dict(color='#636EFA')), row=4, col=1)
     fig.add_hline(y=0, row=4, col=1, line_width=1)
 
     # RSI
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['RSI_14'], name="RSI_14",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['RSI_14'], name="RSI_14", stackgroup='4',
                              marker=dict(color='#636EFA')), row=5, col=1)
     fig.add_hline(y=30, row=5, col=1, line_width=1, name='30')
     fig.add_hline(y=50, row=5, col=1, line_width=1, name='50')
     fig.add_hline(y=70, row=5, col=1, line_width=1, name='70')
 
     # ADX
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['ADX_14'], name="ADX_14",
-                             marker=dict(color='#636EFA')), row=6, col=1)
+    fig.add_trace(
+        go.Scatter(x=df['timestamp'], y=df['ADX_14'], name="ADX_14", stackgroup='5', marker=dict(color='#636EFA')),
+        row=6, col=1)
     fig.add_hline(y=30, row=6, col=1, line_width=1)
     fig.add_hline(y=70, row=6, col=1, line_width=1)
 
@@ -93,19 +93,21 @@ def update_graph(symbol):
                              marker=dict(color='#636EFA')), row=7, col=1)
 
     # CCI
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['CCI_14_0.015'], name="CCI_14_0.015",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['CCI_14_0.015'], name="CCI_14_0.015", stackgroup='6',
                              marker=dict(color='#636EFA')), row=8, col=1)
     fig.add_hline(y=100, row=8, col=1, line_width=1)
     fig.add_hline(y=-100, row=8, col=1, line_width=1)
 
     # WILLR
-    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['WILLR_14'], name="WILLR_14",
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['WILLR_14'], name="WILLR_14", stackgroup='7',
                              marker=dict(color='#636EFA')), row=9, col=1)
     fig.add_hline(y=-80, row=9, col=1, line_width=1)
     fig.add_hline(y=-20, row=9, col=1, line_width=1)
 
     # STOCH
     fig.add_trace(go.Scatter(x=df['timestamp'], y=df['STOCHk_14_3_3'], name="STOCHk_14_3_3",
+                             marker=dict(color='#FFA1FA')), row=10, col=1)
+    fig.add_trace(go.Scatter(x=df['timestamp'], y=df['STOCHd_14_3_3'], name="STOCHd_14_3_3",
                              marker=dict(color='#636EFA')), row=10, col=1)
     fig.add_hline(y=80, row=10, col=1, line_width=1)
     fig.add_hline(y=20, row=10, col=1, line_width=1)
