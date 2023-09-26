@@ -85,10 +85,6 @@ def analyze_symbol(symbol):
     df['rsi_reco'] = df.apply(lambda row: rsi_reco(row), axis=1)
 
     df.ta.stoch(close='close', signal_indicators=True, append=True)
-    xsignal = ta.cross(df['STOCHk_14_3_3'], df['STOCHd_14_3_3'])
-    df['STOCHk_14_3_3_XA'] = xsignal
-    xsignal = ta.cross(df['STOCHd_14_3_3'], df['STOCHk_14_3_3'])
-    df['STOCHk_14_3_3_XB'] = xsignal
     df['stoch_reco'] = df.apply(lambda row: stoch_reco(row), axis=1)
 
     df.ta.aroon(high='high', low='low', append=True)
@@ -185,9 +181,9 @@ def stoch_reco(row):
     # %K >= 80, Indicates Over bought, potential reversal / pull back - Sell
     # When %K crosses above %D from below, indicates uptrend
     # When %K crosses below %D from above, indicates downtrend
-    if (row['STOCHk_14_3_3'] <= 20) & (row['STOCHk_14_3_3_XA'] == 1):
+    if (row['STOCHk_14_3_3'] <= 20) & (row['STOCHd_14_3_3'] <= 20) & (row['STOCHk_14_3_3'] >= row['STOCHd_14_3_3']):
         return 'Buy'
-    elif (row['STOCHk_14_3_3'] >= 80) & (row['STOCHk_14_3_3_XB'] == 1):
+    elif (row['STOCHk_14_3_3'] >= 80) & (row['STOCHd_14_3_3'] >= 80) & (row['STOCHk_14_3_3'] <= row['STOCHd_14_3_3']):
         return 'Sell'
     return None
 
