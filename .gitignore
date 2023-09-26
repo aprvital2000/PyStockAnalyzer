@@ -3,4 +3,5 @@
 .idea/modules.xml
 .idea/PyStockAnalyzer.iml
 .idea/vcs.xml
-/**.csv
+data/**.csv
+
