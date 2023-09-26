@@ -15,7 +15,7 @@ api_key = 'RUUKVAG9C6D2ECAL'
 # Vishnu
 # api_key = 'EE45PHWQN0W27PS1'
 
-print_result = True
+print_result = False
 write_to_file = True
 purge_files_after_days = 1
 
@@ -24,9 +24,9 @@ data_truncate_days = 250
 output_size = 'full'  # default - compact 100 days data only
 data_type = 'csv'  # default - json
 
-file_dir = os.getcwd()
-dest_csv_file_url = '{}/data/{}-enriched-{}.csv'
-src_csv_file_url = '{}/data/{}-{}.csv'
+file_dir = os.getcwd() + '/data'
+dest_csv_file_url = '{}/{}-enriched-{}.csv'
+src_csv_file_url = '{}/{}-{}.csv'
 
 api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={}&symbol={}&outputsize={}&datatype={}'
 
@@ -38,7 +38,7 @@ def analyze_symbols():
     symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
     for symbol in symbols_df['ticker']:
         analyze_symbol(symbol)
-        time.sleep(10)
+        time.sleep(15)
 
 
 def analyze_symbol(symbol):
@@ -225,19 +225,16 @@ def obv_reco(row):
 
 
 def cleanup_files():
-    # get a list of files present in the given folder
-    list_of_files = os.listdir()
-    # loop over all the files
+    print(f" Deleting the older files in folder : {file_dir}")
+    list_of_files = os.listdir(file_dir)
     for i in list_of_files:
-        # get the location of the file
-        file_location = os.path.join(os.getcwd(), i)
-        # file_time is the time when the file is modified
+        file_location = os.path.join(file_dir, i)
         file_time = os.stat(file_location).st_mtime
-
-        # if a file is modified before N days then delete it
         if (i.endswith('.csv')) & (file_time < time.time() - 86400 * purge_files_after_days):
             print(f" Delete : {i}")
             os.remove(file_location)
+    print(f" Completed deleting the older files in folder : {file_dir}")
 
+# cleanup_files()
 # analyze_symbols()
 # analyze_symbol('AAPL')
