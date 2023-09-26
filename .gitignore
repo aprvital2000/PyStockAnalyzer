@@ -1,7 +1,7 @@
-
 .idea/misc.xml
 .idea/modules.xml
 .idea/PyStockAnalyzer.iml
 .idea/vcs.xml
 data/**.csv
-
+.DS_Store
+__pycache__
