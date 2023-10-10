@@ -16,7 +16,10 @@ api_key = 'RUUKVAG9C6D2ECAL'
 # api_key = 'EE45PHWQN0W27PS1'
 
 print_result = False
+print_reco = True
 write_to_file = True
+sleep_between_requests = False
+print_debug = False
 purge_files_after_days = 1
 
 data_truncate_days = 250
@@ -38,22 +41,23 @@ def analyze_symbols():
     symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
     for symbol in symbols_df['ticker']:
         analyze_symbol(symbol)
-        time.sleep(15)
+        if sleep_between_requests:
+            time.sleep(15)
 
 
 def analyze_symbol(symbol):
-    print('Analyzing Symbol: %s' % symbol)
+    if print_debug: print('Analyzing Symbol: %s' % symbol)
     src_file_path = src_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
     file_exists = os.path.isfile(src_file_path)
 
     url = src_file_path
     if not file_exists:
         url = api_url.format(api_key, symbol, output_size, data_type)
-    print('Get data from URL: %s' % url)
+    if print_debug: print('Get data from URL: %s' % url)
 
     df = pd.read_csv(url)
     rows = df.shape[0]
-    print("Got nRecords: %d" % rows)
+    if print_debug: print("Got nRecords: %d" % rows)
 
     if rows < 5:
         print('Error getting data from URL: %s' % url)
@@ -105,6 +109,8 @@ def analyze_symbol(symbol):
     df.ta.willr(high='high', low='low', close='close', append=True)
     df['willr_reco'] = df.apply(lambda row: willr_reco(row), axis=1)
 
+    df.ta.supertrend(high='high', low='low', close='close', append=True)
+
     df.sort_index(ascending=False, inplace=True)
     df.dropna(subset=['MACDs_12_26_9'], inplace=True)
 
@@ -113,10 +119,26 @@ def analyze_symbol(symbol):
         df.to_csv(dest_file_path, index=False)
 
     if print_result:
-        print(df.keys())
+        # print(df.keys())
         print(df.head()[
                   ['macd_reco', 'roc_reco', 'aroon_reco', 'rsi_reco', 'adx_reco', 'stoch_reco', 'bb_reco', 'cci_reco',
                    'willr_reco', 'vwap_reco', 'obv_reco']])
+
+    if print_reco:
+        df2 = df.head(5)
+        buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique() and 'Buy' in df2[
+            'vwap_reco'].unique()
+        sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique() and 'Sell' in df2[
+            'vwap_reco'].unique()
+
+        if buy_reco:
+            print(f"Buy :-> {symbol}")
+            # yag = yagmail.SMTP('aprvital2000', '!SandhyaRan1')
+            # contents = ["Buy :->", symbol]
+            # yag.send('aprvital2000@gmail.com', "Buy :->" + symbol, contents)
+
+        if sell_reco:
+            print(f"Sell :-> {symbol}")
 
     return df
 
@@ -235,6 +257,7 @@ def cleanup_files():
             os.remove(file_location)
     print(f" Completed deleting the older files in folder : {file_dir}")
 
+
 # cleanup_files()
-# analyze_symbols()
 # analyze_symbol('AAPL')
+analyze_symbols()
