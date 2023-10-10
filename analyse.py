@@ -260,4 +260,4 @@ def cleanup_files():
 
 # cleanup_files()
 # analyze_symbol('AAPL')
-analyze_symbols()
+# analyze_symbols()
