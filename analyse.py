@@ -57,7 +57,7 @@ def analyze_symbol(symbol):
     rows = df.shape[0]
     if print_debug: print("Got nRecords: %d" % rows)
 
-    if rows < 5:
+    if rows < decision_truncate_days:
         print('Error getting data from URL: %s' % url)
         return
 
