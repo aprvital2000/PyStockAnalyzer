@@ -18,11 +18,12 @@ api_key = 'RUUKVAG9C6D2ECAL'
 print_result = False
 print_reco = True
 write_to_file = True
-sleep_between_requests = False
+sleep_between_requests = 15
 print_debug = False
 purge_files_after_days = 1
 
 data_truncate_days = 250
+decision_truncate_days = 5
 
 output_size = 'full'  # default - compact 100 days data only
 data_type = 'csv'  # default - json
@@ -41,8 +42,6 @@ def analyze_symbols():
     symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
     for symbol in symbols_df['ticker']:
         analyze_symbol(symbol)
-        if sleep_between_requests:
-            time.sleep(15)
 
 
 def analyze_symbol(symbol):
@@ -51,8 +50,7 @@ def analyze_symbol(symbol):
     file_exists = os.path.isfile(src_file_path)
 
     url = src_file_path
-    if not file_exists:
-        url = api_url.format(api_key, symbol, output_size, data_type)
+    if not file_exists: url = api_url.format(api_key, symbol, output_size, data_type)
     if print_debug: print('Get data from URL: %s' % url)
 
     df = pd.read_csv(url)
@@ -64,8 +62,7 @@ def analyze_symbol(symbol):
         return
 
     df = df.truncate(after=data_truncate_days)
-    if not file_exists:
-        df.to_csv(src_file_path, index=False)
+    if not file_exists: df.to_csv(src_file_path, index=False)
 
     df['timestamp'] = pd.to_datetime(df['timestamp'])
     df.set_index(pd.DatetimeIndex(df["timestamp"]), inplace=True)
@@ -125,21 +122,15 @@ def analyze_symbol(symbol):
                    'willr_reco', 'vwap_reco', 'obv_reco']])
 
     if print_reco:
-        df2 = df.head(5)
-        buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique() and 'Buy' in df2[
-            'vwap_reco'].unique()
-        sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique() and 'Sell' in df2[
-            'vwap_reco'].unique()
+        df2 = df.head(decision_truncate_days)
+        buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique() and 'Buy' in df2['vwap_reco'].unique()
+        sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique() and 'Sell' in df2['vwap_reco'].unique()
 
-        if buy_reco:
-            print(f"Buy :-> {symbol}")
-            # yag = yagmail.SMTP('aprvital2000', '!SandhyaRan1')
-            # contents = ["Buy :->", symbol]
-            # yag.send('aprvital2000@gmail.com', "Buy :->" + symbol, contents)
+        if buy_reco: print(f"Buy :-> {symbol}")
+        if sell_reco: print(f"Sell :-> {symbol}")
 
-        if sell_reco:
-            print(f"Sell :-> {symbol}")
-
+    # If remote calls are made, sleep
+    if url != src_file_path: time.sleep(sleep_between_requests)
     return df
 
 
@@ -147,10 +138,8 @@ def macd_reco2(row):
     # Logic To Be Verified
     # When the MACD crosses down MACDs above 0, indicates downtrend
     # When the MACD crosses up MACDs below 0, indicates uptrend
-    if (row['MACDh_12_26_9_XA_0'] == 1) & (row['MACD_12_26_9'] < 0):
-        return 'Buy'
-    elif (row['MACDh_12_26_9_XB_0'] == 1) & (row['MACD_12_26_9'] > 0):
-        return 'Sell'
+    if (row['MACDh_12_26_9_XA_0'] == 1) & (row['MACD_12_26_9'] < 0): return 'Buy'
+    elif (row['MACDh_12_26_9_XB_0'] == 1) & (row['MACD_12_26_9'] > 0): return 'Sell'
     return None
 
 
@@ -159,18 +148,14 @@ def aroon_reco(row):
 
 
 def roc_reco(row):
-    if row['ROC_10_XU0'] == 1:
-        return 'Buy'
-    elif row['ROC_10_XD0'] == 1:
-        return 'Sell'
+    if row['ROC_10_XU0'] == 1: return 'Buy'
+    elif row['ROC_10_XD0'] == 1: return 'Sell'
     return None
 
 
 def rsi_reco(row):
-    if row['RSI_14'] >= 70:
-        return 'Buy'
-    elif row['RSI_14'] <= 30:
-        return 'Sell'
+    if row['RSI_14'] >= 70: return 'Buy'
+    elif row['RSI_14'] <= 30: return 'Sell'
     return None
 
 
@@ -179,10 +164,8 @@ def adx_reco(row):
     # ADX > 25 - Strong trend (But, No Direction)
     # When the +DMI is above the -DMI, prices are moving up
     # When the -DMI is above the +DMI, prices are moving down
-    if (row['ADX_14'] > 25) & (row['DMP_14'] > row['DMN_14']):
-        return 'Buy'
-    elif (row['ADX_14'] > 25) & (row['DMP_14'] < row['DMN_14']):
-        return 'Sell'
+    if (row['ADX_14'] > 25) & (row['DMP_14'] > row['DMN_14']): return 'Buy'
+    elif (row['ADX_14'] > 25) & (row['DMP_14'] < row['DMN_14']): return 'Sell'
     return None
 
 
@@ -203,42 +186,32 @@ def stoch_reco(row):
     # %K >= 80, Indicates Over bought, potential reversal / pull back - Sell
     # When %K crosses above %D from below, indicates uptrend
     # When %K crosses below %D from above, indicates downtrend
-    if (row['STOCHk_14_3_3'] <= 20) & (row['STOCHd_14_3_3'] <= 20) & (row['STOCHk_14_3_3'] >= row['STOCHd_14_3_3']):
-        return 'Buy'
-    elif (row['STOCHk_14_3_3'] >= 80) & (row['STOCHd_14_3_3'] >= 80) & (row['STOCHk_14_3_3'] <= row['STOCHd_14_3_3']):
-        return 'Sell'
+    if (row['STOCHk_14_3_3'] <= 20) & (row['STOCHd_14_3_3'] <= 20) & (row['STOCHk_14_3_3'] >= row['STOCHd_14_3_3']): return 'Buy'
+    elif (row['STOCHk_14_3_3'] >= 80) & (row['STOCHd_14_3_3'] >= 80) & (row['STOCHk_14_3_3'] <= row['STOCHd_14_3_3']): return 'Sell'
     return None
 
 
 def bb_reco(row):
-    if row['close'] <= row['BBL_20_2.0']:
-        return 'Buy'
-    elif row['close'] >= row['BBU_20_2.0']:
-        return 'Sell'
+    if row['close'] <= row['BBL_20_2.0']: return 'Buy'
+    elif row['close'] >= row['BBU_20_2.0']: return 'Sell'
     return None
 
 
 def cci_reco(row):
-    if row['CCI_14_0.015'] <= -100:
-        return 'Buy'
-    elif row['CCI_14_0.015'] >= 100:
-        return 'Sell'
+    if row['CCI_14_0.015'] <= -100: return 'Buy'
+    elif row['CCI_14_0.015'] >= 100: return 'Sell'
     return None
 
 
 def willr_reco(row):
-    if row['WILLR_14'] <= -80:
-        return 'Buy'
-    elif row['WILLR_14'] >= -20:
-        return 'Sell'
+    if row['WILLR_14'] <= -80: return 'Buy'
+    elif row['WILLR_14'] >= -20: return 'Sell'
     return None
 
 
 def vwap_reco(row):
-    if row['close'] >= row['VWAP_D']:
-        return 'Buy'
-    elif row['close'] < row['VWAP_D']:
-        return 'Sell'
+    if row['close'] >= row['VWAP_D']: return 'Buy'
+    elif row['close'] < row['VWAP_D']: return 'Sell'
     return None
 
 
@@ -256,8 +229,3 @@ def cleanup_files():
             print(f" Delete : {i}")
             os.remove(file_location)
     print(f" Completed deleting the older files in folder : {file_dir}")
-
-
-# cleanup_files()
-# analyze_symbol('AAPL')
-# analyze_symbols()
