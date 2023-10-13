@@ -126,8 +126,9 @@ def analyze_symbol(symbol):
         buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique() and 'Buy' in df2['vwap_reco'].unique()
         sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique() and 'Sell' in df2['vwap_reco'].unique()
 
-        if buy_reco: print(f"Buy :-> {symbol}")
-        if sell_reco: print(f"Sell :-> {symbol}")
+        if buy_reco: print(f"{symbol} :-> Buy")
+        elif sell_reco: print(f"{symbol} :-> Sell")
+        else: print(f"{symbol} :-> No Action")
 
     # If remote calls are made, sleep
     if url != src_file_path: time.sleep(sleep_between_requests)
