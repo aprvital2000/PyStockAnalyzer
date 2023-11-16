@@ -56,6 +56,10 @@
     "name": "Krogger"
   },
   {
+    "ticker": "SFM",
+    "name": "Sprouts"
+  },
+  {
     "ticker": "SMFG",
     "name": "SMBC"
   },
@@ -92,12 +96,76 @@
     "name": "Lucid"
   },
   {
+    "ticker": "NIO",
+    "name": "Nio"
+  },
+  {
     "ticker": "MMM",
     "name": "3M"
   },
   {
     "ticker": "BAC",
     "name": "Bank Of America"
+  },
+  {
+    "ticker": "WFC",
+    "name": "Wells fargo"
+  },
+  {
+    "ticker": "MO",
+    "name": "Altria Group Inc"
+  },
+  {
+    "ticker": "V",
+    "name": "Visa"
+  },
+  {
+    "ticker": "MA",
+    "name": "Master Card"
+  },
+  {
+    "ticker": "AXP",
+    "name": "American Express"
+  },
+  {
+    "ticker": "PYPL",
+    "name": "Paypal"
+  },
+  {
+    "ticker": "CRSP",
+    "name": "CRISPR"
+  },
+  {
+    "ticker": "PACB",
+    "name": "Pacific Biosciences"
+  },
+  {
+    "ticker": "TWST",
+    "name": "Twist Biosciences"
+  },
+  {
+    "ticker": "BNGO",
+    "name": "Bionano Genomics"
+  },
+  {
+    "ticker": "SENS",
+    "name": "Senseonics"
+  },
+  {
+    "ticker": "RGTI",
+    "name": "Rigetti Computing Inc"
+  },
+  {
+    "ticker": "IONQ",
+    "name": "IonQ Inc"
+  },
+  {
+    "ticker": "PLUG",
+    "name": "Plug Power"
+  },
+  {
+    "ticker": "IBM",
+    "name": "IBM"
   }
 ]
 
