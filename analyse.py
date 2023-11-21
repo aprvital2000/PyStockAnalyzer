@@ -3,36 +3,19 @@ import os.path
 import time
 from datetime import date
 
-import matplotlib.pyplot as plt
 import pandas as pd
 import pandas_ta as ta
-
-plt.style.use('default')
-
-# Vital
-api_key = 'RUUKVAG9C6D2ECAL'
-
-# Vishnu
-# api_key = 'EE45PHWQN0W27PS1'
 
 print_result = False
 print_reco = True
 write_to_file = True
-sleep_between_requests = 15
 print_debug = False
 purge_files_after_days = 1
-
-data_truncate_days = 250
 decision_truncate_days = 5
-
-output_size = 'full'  # default - compact 100 days data only
-data_type = 'csv'  # default - json
 
 file_dir = os.getcwd() + '/data'
 dest_csv_file_url = '{}/{}-enriched-{}.csv'
 src_csv_file_url = '{}/{}-{}.csv'
-
-api_url = 'https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&apikey={}&symbol={}&outputsize={}&datatype={}'
 
 pd.set_option("display.max_columns", None)  # show all columns
 
@@ -50,10 +33,17 @@ def analyze_symbol(symbol):
     file_exists = os.path.isfile(src_file_path)
 
     url = src_file_path
-    if not file_exists: url = api_url.format(api_key, symbol, output_size, data_type)
-    if print_debug: print('Get data from URL: %s' % url)
+    df = pd.DataFrame()
 
-    df = pd.read_csv(url)
+    if not file_exists:
+        df = df.ta.ticker(symbol, period="12mo", interval="1d")
+        df.drop(['Dividends', 'Stock Splits'], inplace=True, axis=1)
+        df.reset_index(inplace=True)
+    else:
+        df = pd.read_csv(url)
+        if print_debug: print('Get data from URL: %s' % url)
+
+    df.set_index('Date')
     rows = df.shape[0]
     if print_debug: print("Got nRecords: %d" % rows)
 
@@ -61,52 +51,48 @@ def analyze_symbol(symbol):
         print('Error getting data from URL: %s' % url)
         return
 
-    df = df.truncate(after=data_truncate_days)
     if not file_exists: df.to_csv(src_file_path, index=False)
-
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df.set_index(pd.DatetimeIndex(df["timestamp"]), inplace=True)
     df.sort_index(ascending=True, inplace=True)
 
-    df.ta.bbands(close='close', length=20, std=2, signal_indicators=True, append=True)
+    df.ta.bbands(close='Close', length=20, std=2, signal_indicators=True, append=True)
     df['bb_reco'] = df.apply(lambda row: bb_reco(row), axis=1)
 
-    df.ta.macd(close='close', signal_indicators=True, append=True)
+    df.ta.macd(close='Close', signal_indicators=True, append=True)
     macd_reco(df)
     df['macd_reco'] = df.apply(lambda row: macd_reco2(row), axis=1)
 
-    df.ta.roc(close='close', append=True)
+    df.ta.roc(close='Close', append=True)
     upward_signal = ta.cross_value(df['ROC_10'], 0, above=True)
     df['ROC_10_XU0'] = upward_signal
     downward_signal = ta.cross_value(df['ROC_10'], 0, above=False)
     df['ROC_10_XD0'] = downward_signal
     df['roc_reco'] = df.apply(lambda row: roc_reco(row), axis=1)
 
-    df.ta.rsi(close='close', signal_indicators=True, append=True)
+    df.ta.rsi(close='Close', signal_indicators=True, append=True)
     df['rsi_reco'] = df.apply(lambda row: rsi_reco(row), axis=1)
 
-    df.ta.stoch(close='close', signal_indicators=True, append=True)
+    df.ta.stoch(close='Close', signal_indicators=True, append=True)
     df['stoch_reco'] = df.apply(lambda row: stoch_reco(row), axis=1)
 
-    df.ta.aroon(high='high', low='low', append=True)
+    df.ta.aroon(high='High', low='Low', append=True)
     df['aroon_reco'] = df.apply(lambda row: aroon_reco(row), axis=1)
 
-    df.ta.adx(high='high', low='low', close='close', signal_indicators=True, append=True)
+    df.ta.adx(high='High', low='Low', close='Close', signal_indicators=True, append=True)
     df['adx_reco'] = df.apply(lambda row: adx_reco(row), axis=1)
 
-    df.ta.vwap(high='high', low='low', close='close', volume='volume', append=True)
-    df['vwap_reco'] = df.apply(lambda row: vwap_reco(row), axis=1)
+    # df.ta.vwap(high='High', low='Low', close='Close', volume='Volume', append=True)
+    # df['vwap_reco'] = df.apply(lambda row: vwap_reco(row), axis=1)
 
-    df.ta.obv(close='close', volume='volume', append=True)
+    df.ta.obv(close='Close', volume='Volume', append=True)
     df['obv_reco'] = df.apply(lambda row: obv_reco(row), axis=1)
 
-    df.ta.cci(high='high', low='low', close='close', append=True)
+    df.ta.cci(high='High', low='Low', close='Close', append=True)
     df['cci_reco'] = df.apply(lambda row: cci_reco(row), axis=1)
 
-    df.ta.willr(high='high', low='low', close='close', append=True)
+    df.ta.willr(high='High', low='Low', close='Close', append=True)
     df['willr_reco'] = df.apply(lambda row: willr_reco(row), axis=1)
 
-    df.ta.supertrend(high='high', low='low', close='close', append=True)
+    df.ta.supertrend(high='High', low='Low', close='Close', append=True)
 
     df.sort_index(ascending=False, inplace=True)
     df.dropna(subset=['MACDs_12_26_9'], inplace=True)
@@ -123,15 +109,13 @@ def analyze_symbol(symbol):
 
     if print_reco:
         df2 = df.head(decision_truncate_days)
-        buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique() and 'Buy' in df2['vwap_reco'].unique()
-        sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique() and 'Sell' in df2['vwap_reco'].unique()
+        buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique()  # and 'Buy' in df2['vwap_reco'].unique()
+        sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique()  # and 'Sell' in df2['vwap_reco'].unique()
 
         if buy_reco: print(f"{symbol} :-> Buy")
         elif sell_reco: print(f"{symbol} :-> Sell")
         else: print(f"{symbol} :-> No Action")
 
-    # If remote calls are made, sleep
-    if url != src_file_path: time.sleep(sleep_between_requests)
     return df
 
 
@@ -176,8 +160,8 @@ def macd_reco(df):
     # When the MACD crosses up MACDs below 0, indicates uptrend
     df['macd_buy_reco'] = None
     df['macd_sell_reco'] = None
-    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_buy_reco'] = df['close']
-    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_sell_reco'] = df['close']
+    df.loc[(df['MACDh_12_26_9_XA_0'] == 1) & (df['MACD_12_26_9'] < 0), 'macd_buy_reco'] = df['Close']
+    df.loc[(df['MACDh_12_26_9_XB_0'] == 1) & (df['MACD_12_26_9'] > 0), 'macd_sell_reco'] = df['Close']
     return df
 
 
@@ -193,8 +177,8 @@ def stoch_reco(row):
 
 
 def bb_reco(row):
-    if row['close'] <= row['BBL_20_2.0']: return 'Buy'
-    elif row['close'] >= row['BBU_20_2.0']: return 'Sell'
+    if row['Close'] <= row['BBL_20_2.0']: return 'Buy'
+    elif row['Close'] >= row['BBU_20_2.0']: return 'Sell'
     return None
 
 
@@ -211,12 +195,13 @@ def willr_reco(row):
 
 
 def vwap_reco(row):
-    if row['close'] >= row['VWAP_D']: return 'Buy'
-    elif row['close'] < row['VWAP_D']: return 'Sell'
+    if row['Close'] >= row['VWAP_D']: return 'Buy'
+    elif row['Close'] < row['VWAP_D']: return 'Sell'
     return None
 
 
 def obv_reco(row):
+    if print_debug: print("Got row in OBV : %d" % row)
     return None
 
 
