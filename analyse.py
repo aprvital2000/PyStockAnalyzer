@@ -112,9 +112,9 @@ def analyze_symbol(symbol):
         buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique()  # and 'Buy' in df2['vwap_reco'].unique()
         sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique()  # and 'Sell' in df2['vwap_reco'].unique()
 
-        if buy_reco: print(f"{symbol} :-> Buy")
-        elif sell_reco: print(f"{symbol} :-> Sell")
-        else: print(f"{symbol} :-> No Action")
+        if buy_reco: print(f"[BUY ] --> {symbol}")
+        elif sell_reco: print(f"[SELL] --> {symbol}")
+        else: print(f"[N/A ] --> {symbol}")
 
     return df
 

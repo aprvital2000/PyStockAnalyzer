@@ -9,107 +9,139 @@
   },
   {
     "ticker": "MSFT",
-    "name": "Microsoft"
+    "name": "Microsoft Corporation"
   },
   {
     "ticker": "AAPL",
-    "name": "Apple"
+    "name": "Apple Inc."
   },
   {
     "ticker": "NFLX",
-    "name": "Netflix"
+    "name": "Netflix, Inc."
   },
   {
     "ticker": "AMZN",
-    "name": "Amazon"
+    "name": "Amazon.com, Inc."
   },
   {
     "ticker": "META",
-    "name": "Facebook"
+    "name": "Meta Platforms, Inc."
   },
   {
     "ticker": "ADBE",
-    "name": "Adobe"
+    "name": "Adobe Inc."
   },
   {
     "ticker": "NVDA",
-    "name": "Nvidia"
+    "name": "NVIDIA Corporation"
   },
   {
     "ticker": "GOOGL",
-    "name": "Google"
+    "name": "Alphabet Inc."
+  },
+  {
+    "ticker": "ORCL",
+    "name": "Oracle Corporation"
+  },
+  {
+    "ticker": "CRM",
+    "name": "Salesforce, Inc."
+  },
+  {
+    "ticker": "BABA",
+    "name": "Alibaba Group Holding Limited"
   },
   {
     "ticker": "TSLA",
-    "name": "Tesla"
+    "name": "Tesla, Inc."
   },
   {
     "ticker": "COST",
-    "name": "Costco"
+    "name": "Costco Wholesale Corporation"
   },
   {
     "ticker": "TGT",
-    "name": "Target"
+    "name": "Target Corporation"
   },
   {
     "ticker": "KR",
-    "name": "Krogger"
+    "name": "The Kroger Co."
+  },
+  {
+    "ticker": "WMT",
+    "name": "Walmart Inc."
   },
   {
     "ticker": "SFM",
-    "name": "Sprouts"
-  },
-  {
-    "ticker": "SMFG",
-    "name": "SMBC"
+    "name": "Sprouts Farmers Market, Inc."
   },
   {
     "ticker": "KO",
-    "name": "Coke"
+    "name": "The Coca-Cola Company"
+  },
+  {
+    "ticker": "PEP",
+    "name": "PepsiCo, Inc."
   },
   {
     "ticker": "CVS",
-    "name": "CVS"
+    "name": "CVS Health Corporation"
   },
   {
     "ticker": "WBA",
-    "name": "Walgreens"
+    "name": "Walgreens Boots Alliance, Inc."
   },
   {
     "ticker": "SBUX",
-    "name": "Starbucks"
+    "name": "Starbucks Corporation"
   },
   {
     "ticker": "CVX",
-    "name": "Chevron"
+    "name": "Chevron Corporation"
   },
   {
     "ticker": "XOM",
-    "name": "Exxon"
+    "name": "Exxon Mobil Corporation"
+  },
+  {
+    "ticker": "SHEL",
+    "name": "Shell plc"
   },
   {
     "ticker": "NKLA",
-    "name": "Nicola"
+    "name": "Nikola Corporation"
   },
   {
     "ticker": "LCID",
-    "name": "Lucid"
+    "name": "Lucid Group, Inc."
   },
   {
     "ticker": "NIO",
-    "name": "Nio"
+    "name": "NIO Inc."
+  },
+  {
+    "ticker": "TM",
+    "name": "Toyota Motor Corporation"
   },
   {
     "ticker": "MMM",
-    "name": "3M"
+    "name": "3M Company"
+  },
+  {
+    "ticker": "SMFG",
+    "name": "Sumitomo Mitsui Financial Group, Inc."
   },
   {
     "ticker": "BAC",
-    "name": "Bank Of America"
+    "name": "Bank Of America Corporation"
   },
   {
     "ticker": "WFC",
-    "name": "Wells fargo"
+    "name": "Wells Fargo & Company"
+  },
+  {
+    "ticker": "JPM",
+    "name": "JPMorgan Chase & Co."
   },
   {
     "ticker": "MO",
@@ -117,55 +149,123 @@
   },
   {
     "ticker": "V",
-    "name": "Visa"
+    "name": "Visa Inc."
   },
   {
     "ticker": "MA",
-    "name": "Master Card"
+    "name": "Mastercard Incorporated"
   },
   {
     "ticker": "AXP",
-    "name": "American Express"
+    "name": "American Express Company"
   },
   {
     "ticker": "PYPL",
-    "name": "Paypal"
+    "name": "PayPal Holdings, Inc."
   },
   {
     "ticker": "CRSP",
-    "name": "CRISPR"
+    "name": "CRISPR Therapeutics AG"
   },
   {
     "ticker": "PACB",
-    "name": "Pacific Biosciences"
+    "name": "Pacific Biosciences of California, Inc."
   },
   {
     "ticker": "TWST",
-    "name": "Twist Biosciences"
+    "name": "Twist Bioscience Corporation"
   },
   {
     "ticker": "BNGO",
-    "name": "Bionano Genomics"
+    "name": "Bionano Genomics, Inc."
   },
   {
     "ticker": "SENS",
-    "name": "Senseonics"
+    "name": "Senseonics Holdings, Inc."
   },
   {
     "ticker": "RGTI",
-    "name": "Rigetti Computing Inc"
+    "name": "Rigetti Computing, Inc."
   },
   {
     "ticker": "IONQ",
-    "name": "IonQ Inc"
+    "name": "IonQ, Inc."
   },
   {
     "ticker": "PLUG",
-    "name": "Plug Power"
+    "name": "Plug Power Inc."
   },
   {
     "ticker": "IBM",
-    "name": "IBM"
+    "name": "International Business Machines Corporation"
+  },
+  {
+    "ticker": "CAT",
+    "name": "Caterpillar Inc."
+  },
+  {
+    "ticker": "DE",
+    "name": "Deere & Company"
+  },
+  {
+    "ticker": "BRK-B",
+    "name": "Berkshire Hathaway Inc."
+  },
+  {
+    "ticker": "LLY",
+    "name": "Eli Lilly and Company"
+  },
+  {
+    "ticker": "TSM",
+    "name": "Taiwan Semiconductor Manufacturing Company Limited"
+  },
+  {
+    "ticker": "UNH",
+    "name": "UnitedHealth Group Incorporated"
+  },
+  {
+    "ticker": "MRK",
+    "name": "Merck & Co., Inc."
+  },
+  {
+    "ticker": "ABBV",
+    "name": "AbbVie Inc."
+  },
+  {
+    "ticker": "JNJ",
+    "name": "Johnson & Johnson"
+  },
+  {
+    "ticker": "AVGO",
+    "name": "Broadcom Inc."
+  },
+  {
+    "ticker": "PG",
+    "name": "The Procter & Gamble Company"
+  },
+  {
+    "ticker": "HD",
+    "name": "The Home Depot, Inc."
+  },
+  {
+    "ticker": "LOW",
+    "name": "Lowe's Companies, Inc."
+  },
+  {
+    "ticker": "MCD",
+    "name": "McDonald's Corporation"
+  },
+  {
+    "ticker": "CMG",
+    "name": "Chipotle Mexican Grill, Inc."
+  },
+  {
+    "ticker": "DIS",
+    "name": "The Walt Disney Company"
+  },
+  {
+    "ticker": "NKE",
+    "name": "NIKE, Inc. (NKE)"
   }
 ]
 
