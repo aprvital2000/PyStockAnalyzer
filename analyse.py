@@ -10,7 +10,7 @@ print_result = False
 print_reco = True
 write_to_file = True
 print_debug = False
-purge_files_after_days = 1
+purge_files_after_days = 0
 decision_truncate_days = 5
 
 file_dir = os.getcwd() + '/data'
@@ -23,12 +23,13 @@ pd.set_option("display.max_columns", None)  # show all columns
 def analyze_symbols():
     symbols_df = pd.read_json('securities.json')
     symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
-    for symbol in symbols_df['ticker']:
-        analyze_symbol(symbol)
+
+    for record in symbols_df.iterrows():
+        analyze_symbol(record[1]['ticker'], record[1]['name'])
 
 
-def analyze_symbol(symbol):
-    if print_debug: print('Analyzing Symbol: %s' % symbol)
+def analyze_symbol(symbol, name):
+    if print_debug: print('Analyzing Symbol: %s (%s)' % (symbol, name))
     src_file_path = src_csv_file_url.format(file_dir, symbol, date.today().strftime('%d%m%y'))
     file_exists = os.path.isfile(src_file_path)
 
@@ -112,9 +113,9 @@ def analyze_symbol(symbol):
         buy_reco = 'Buy' in df2['macd_reco'].unique() and 'Buy' in df2['roc_reco'].unique()  # and 'Buy' in df2['vwap_reco'].unique()
         sell_reco = 'Sell' in df2['macd_reco'].unique() and 'Sell' in df2['roc_reco'].unique()  # and 'Sell' in df2['vwap_reco'].unique()
 
-        if buy_reco: print(f"[BUY ] --> {symbol}")
-        elif sell_reco: print(f"[SELL] --> {symbol}")
-        else: print(f"[N/A ] --> {symbol}")
+        if buy_reco: print(f"[BUY ] --> {symbol} ({name})")
+        elif sell_reco: print(f"[SELL] --> {symbol} ({name})")
+        else: print(f"[N/A ] --> {symbol} ({name})")
 
     return df
 
@@ -201,7 +202,7 @@ def vwap_reco(row):
 
 
 def obv_reco(row):
-    if print_debug: print("Got row in OBV : %d" % row)
+    if print_debug: print("Got row in OBV : %s" % row)
     return None
 
 

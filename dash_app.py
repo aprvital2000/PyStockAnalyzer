@@ -11,7 +11,9 @@ symbols_df.sort_values(by=['ticker'], ascending=True, inplace=True)
 
 app.layout = html.Div([
     html.H1(style={'textAlign': 'center'}),
-    dcc.Dropdown(options=symbols_df['ticker'], value=symbols_df.iloc[0]['ticker'], id='dropdown-selection'),
+    dcc.Dropdown(options=[{'label': record[1]['ticker'] + ' - ' + record[1]['name'], 'value': record[1]['ticker']} for record in
+                          symbols_df.iterrows()
+                          ], value=symbols_df.iloc[0]['ticker'], id='dropdown-selection', searchable=True),
     dcc.Graph(id='graph-content')
 ])
 
@@ -21,15 +23,14 @@ app.layout = html.Div([
     Input('dropdown-selection', 'value')
 )
 def update_graph(symbol):
-    df = analyze_symbol(symbol)
+    df = analyze_symbol(symbol, None)
 
     # Create figure with secondary y-axis
     fig = make_subplots(rows=10, cols=1, horizontal_spacing=0, vertical_spacing=0.03, print_grid=True,
                         shared_xaxes=True,
                         # x_title="Date",
                         row_heights=[200, 200, 200, 200, 200, 200, 200, 200, 200, 200],
-                        row_titles=(
-                        "Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS", "CCI", "WILL-R", "STOCH"),
+                        row_titles=("Closing Price", "MACD", "ROC", "AROON", "RSI", "ADX", "B-BANDS", "CCI", "WILL-R", "STOCH"),
                         subplot_titles=("<b>Closing Price</b> - Buy at Green up arrow, Sell at Red down arrow",
                                         "<b>MACD</b> - Buy when red line crosses blue line upwards below 0, Sell when red line crosses blue line downwards below 0",
                                         "<b>Rate Of Change</b> - Buy when ROC crosses 0 upwards, Sell when ROC crosses 0 downwards",
