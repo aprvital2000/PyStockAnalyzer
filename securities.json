@@ -266,6 +266,22 @@
   {
     "ticker": "NKE",
     "name": "NIKE, Inc. (NKE)"
+  },
+  {
+    "ticker": "BTC-USD",
+    "name": "Bitcoin"
+  },
+  {
+    "ticker": "ETH-USD",
+    "name": "Ethereum"
+  },
+  {
+    "ticker": "XRP-USD",
+    "name": "Ripple"
+  },
+  {
+    "ticker": "XTZ-USD",
+    "name": "Tezos"
   }
 ]
 

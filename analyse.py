@@ -10,7 +10,7 @@ print_result = False
 print_reco = True
 write_to_file = True
 print_debug = False
-purge_files_after_days = 0
+purge_files_after_days = 1
 decision_truncate_days = 5
 
 file_dir = os.getcwd() + '/data'
@@ -115,7 +115,7 @@ def analyze_symbol(symbol, name):
 
         if buy_reco: print(f"[BUY ] --> {symbol} ({name})")
         elif sell_reco: print(f"[SELL] --> {symbol} ({name})")
-        else: print(f"[N/A ] --> {symbol} ({name})")
+        # else: print(f"[N/A ] --> {symbol} ({name})")
 
     return df
 
