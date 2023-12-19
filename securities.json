@@ -52,6 +52,18 @@
     "name": "Alibaba Group Holding Limited"
   },
   {
+    "ticker": "CFLT",
+    "name": "Confluent, Inc."
+  },
+  {
+    "ticker": "CVNA",
+    "name": "Carvana Co."
+  },
+  {
+    "ticker": "DOCU",
+    "name": "DocuSign, Inc."
+  },
+  {
     "ticker": "TSLA",
     "name": "Tesla, Inc."
   },
@@ -226,6 +238,10 @@
   {
     "ticker": "MRK",
     "name": "Merck & Co., Inc."
+  },
+  {
+    "ticker": "ABT",
+    "name": "Abbott Laboratories"
   },
   {
     "ticker": "ABBV",
