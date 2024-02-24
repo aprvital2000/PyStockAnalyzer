@@ -52,8 +52,48 @@
     "name": "Alibaba Group Holding Limited"
   },
   {
+    "ticker": "UBER",
+    "name": "Uber Technologies, Inc."
+  },
+  {
+    "ticker": "SIRI",
+    "name": "Sirius XM Holdings Inc."
+  },
+  {
+    "ticker": "O",
+    "name": "Realty Income Corporation"
+  },
+  {
+    "ticker": "NET",
+    "name": "Cloudflare, Inc."
+  },
+  {
+    "ticker": "MDB",
+    "name": "MongoDB, Inc."
+  },
+  {
     "ticker": "CFLT",
     "name": "Confluent, Inc."
+  },
+  {
+    "ticker": "DDOG",
+    "name": "Datadog, Inc."
+  },
+  {
+    "ticker": "SPLK",
+    "name": "Splunk Inc."
+  },
+  {
+    "ticker": "SNOW",
+    "name": "Snowflake Inc."
+  },
+  {
+    "ticker": "PLTR",
+    "name": "Palantir Technologies Inc."
+  },
+  {
+    "ticker": "AI",
+    "name": "C3.ai, Inc."
   },
   {
     "ticker": "CVNA",
@@ -62,6 +102,14 @@
   {
     "ticker": "DOCU",
     "name": "DocuSign, Inc."
+  },
+  {
+    "ticker": "CRWD",
+    "name": "Crowdstrike Holdings"
+  },
+  {
+    "ticker": "TEAM",
+    "name": "Atlassian Corporation"
   },
   {
     "ticker": "TSLA",
@@ -120,6 +168,10 @@
     "name": "Shell plc"
   },
   {
+    "ticker": "OXY",
+    "name": "Occidental Petroleum"
+  },
+  {
     "ticker": "NKLA",
     "name": "Nikola Corporation"
   },
@@ -160,6 +212,10 @@
     "name": "Altria Group Inc"
   },
   {
+    "ticker": "BTI",
+    "name": "British American Tobacco p.l.c."
+  },
+  {
     "ticker": "V",
     "name": "Visa Inc."
   },
@@ -172,8 +228,20 @@
     "name": "American Express Company"
   },
   {
+    "ticker": "COF",
+    "name": "Capital One Financial"
+  },
+  {
     "ticker": "PYPL",
     "name": "PayPal Holdings, Inc."
+  },
+  {
+    "ticker": "SQ",
+    "name": "Block, Inc."
+  },
+  {
+    "ticker": "STNE",
+    "name": "StoneCo Ltd."
   },
   {
     "ticker": "CRSP",
@@ -186,6 +254,26 @@
   {
     "ticker": "TWST",
     "name": "Twist Bioscience Corporation"
+  },
+  {
+    "ticker": "BEAM",
+    "name": "Beam Therapeutics Inc."
+  },
+  {
+    "ticker": "VRTX",
+    "name": "Vertex Pharmaceuticals Incorporated"
+  },
+  {
+    "ticker": "EDIT",
+    "name": "Editas Medicine, Inc."
+  },
+  {
+    "ticker": "NTLA",
+    "name": "Intellia Therapeutics, Inc."
+  },
+  {
+    "ticker": "ILMN",
+    "name": "Illumina, Inc."
   },
   {
     "ticker": "BNGO",
@@ -232,8 +320,72 @@
     "name": "Taiwan Semiconductor Manufacturing Company Limited"
   },
   {
+    "ticker": "ASML",
+    "name": "ASML Holding N.V."
+  },
+  {
+    "ticker": "SOUN",
+    "name": "SoundHound AI, Inc."
+  },
+  {
+    "ticker": "RXRX",
+    "name": "Recursion Pharmaceuticals, Inc."
+  },
+  {
+    "ticker": "NNOX",
+    "name": "Nano-X Imaging Ltd."
+  },
+  {
+    "ticker": "AMAT",
+    "name": "Applied Materials, Inc."
+  },
+  {
+    "ticker": "INTC",
+    "name": "Intel Corporation"
+  },
+  {
+    "ticker": "PLAB",
+    "name": "Photronics, Inc."
+  },
+  {
+    "ticker": "AMD",
+    "name": "Advanced Micro Devices, Inc."
+  },
+  {
+    "ticker": "ARM",
+    "name": "Arm Holdings plc"
+  },
+  {
+    "ticker": "ON",
+    "name": "ON Semiconductor Corporation"
+  },
+  {
+    "ticker": "SMCI",
+    "name": "Super Micro Computer, Inc."
+  },
+  {
+    "ticker": "CDNS",
+    "name": "Cadence Design Systems, Inc."
+  },
+  {
+    "ticker": "APLD",
+    "name": "Applied Digital Corporation"
+  },
+  {
+    "ticker": "EQIX",
+    "name": "Equinix, Inc."
+  },
+  {
+    "ticker": "LSCC",
+    "name": "Lattice Semiconductor Corporation "
+  },
+  {
     "ticker": "UNH",
     "name": "UnitedHealth Group Incorporated"
+  },
+  {
+    "ticker": "U",
+    "name": "Unity Software Inc."
   },
   {
     "ticker": "MRK",
@@ -281,7 +433,27 @@
   },
   {
     "ticker": "NKE",
-    "name": "NIKE, Inc. (NKE)"
+    "name": "NIKE, Inc."
+  },
+  {
+    "ticker": "GME",
+    "name": "GameStop Corp."
+  },
+  {
+    "ticker": "AMC",
+    "name": "AMC Entertainment Holdings, Inc."
+  },
+  {
+    "ticker": "SPCE",
+    "name": "Virgin Galactic Holdings, Inc."
+  },
+  {
+    "ticker": "LUNR",
+    "name": "Intuitive Machines, Inc."
+  },
+  {
+    "ticker": "RKLB",
+    "name": "Rocket Lab USA, Inc."
   },
   {
     "ticker": "BTC-USD",
