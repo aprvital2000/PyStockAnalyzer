@@ -103,10 +103,10 @@ def analyze_symbol(symbol, name):
         df.to_csv(dest_file_path, index=False)
 
     if print_result:
-        # print(df.keys())
+        print(symbol, name)
         print(df.head()[
                   ['macd_reco', 'roc_reco', 'aroon_reco', 'rsi_reco', 'adx_reco', 'stoch_reco', 'bb_reco', 'cci_reco',
-                   'willr_reco', 'vwap_reco', 'obv_reco']])
+                   'willr_reco', 'obv_reco']])
 
     if print_reco:
         df2 = df.head(decision_truncate_days)
@@ -115,7 +115,7 @@ def analyze_symbol(symbol, name):
 
         if buy_reco: print(f"[BUY ] --> {symbol} ({name})")
         elif sell_reco: print(f"[SELL] --> {symbol} ({name})")
-        # else: print(f"[N/A ] --> {symbol} ({name})")
+        #else: print(f"[N/A ] --> {symbol} ({name})")
 
     return df
 
