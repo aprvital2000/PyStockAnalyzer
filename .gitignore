@@ -1,8 +1,2 @@
-.idea/misc.xml
-.idea/modules.xml
-.idea/PyStockAnalyzer.iml
-.idea/vcs.xml
-data/**.csv
-.DS_Store
-__pycache__
-.idea/**
+# Created by venv; see https://docs.python.org/3/library/venv.html
+*

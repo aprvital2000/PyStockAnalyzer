@@ -86,9 +86,9 @@ def update_graph(symbol):
     fig.add_hline(y=70, row=6, col=1, line_width=1)
 
     # BBands
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['BBU_20_2.0'], name="BBU_20_2.0",
+    fig.add_trace(go.Scatter(x=df['Date'], y=df['BBU_20_2.0_2.0'], name="BBU_20_2.0_2.0",
                              marker=dict(color='#FFA1FA')), row=7, col=1)
-    fig.add_trace(go.Scatter(x=df['Date'], y=df['BBL_20_2.0'], name="BBL_20_2.0",
+    fig.add_trace(go.Scatter(x=df['Date'], y=df['BBL_20_2.0_2.0'], name="BBL_20_2.0_2.0",
                              marker=dict(color='#2ca02c')), row=7, col=1)
     fig.add_trace(go.Scatter(x=df['Date'], y=df['Close'], name="Close",
                              marker=dict(color='#636EFA')), row=7, col=1)

@@ -1,5 +1,4 @@
-from analyse import analyze_symbols, cleanup_files, analyze_symbol
+from analyse import analyze_symbols, cleanup_files
 
 cleanup_files()
 analyze_symbols()
-#analyze_symbol("RGTI", "RGTI")
