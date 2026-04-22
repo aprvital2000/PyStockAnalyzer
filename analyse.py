@@ -5,6 +5,7 @@ from datetime import date
 
 import pandas as pd
 import pandas_ta as ta
+import yfinance as yf
 
 print_result = False
 print_reco = True
@@ -37,9 +38,13 @@ def analyze_symbol(symbol, name):
     df = pd.DataFrame()
 
     if not file_exists:
-        df = df.ta.ticker(symbol, period="12mo", interval="1d")
-        df.drop(['Dividends', 'Stock Splits'], inplace=True, axis=1)
+        df = yf.Ticker(symbol).history(period="12mo", interval="1d")
+        df.drop(['Dividends', 'Stock Splits'], inplace=True, axis=1, errors='ignore')
         df.reset_index(inplace=True)
+        if df.shape[0] < decision_truncate_days:
+            print('Error getting data from URL: %s' % url)
+            return
+        df['Date'] = df['Date'].dt.tz_localize(None)
     else:
         df = pd.read_csv(url)
         if print_debug: print('Get data from URL: %s' % url)
@@ -81,8 +86,10 @@ def analyze_symbol(symbol, name):
     df.ta.adx(high='High', low='Low', close='Close', signal_indicators=True, append=True)
     df['adx_reco'] = df.apply(lambda row: adx_reco(row), axis=1)
 
-    # df.ta.vwap(high='High', low='Low', close='Close', volume='Volume', append=True)
-    # df['vwap_reco'] = df.apply(lambda row: vwap_reco(row), axis=1)
+    df.index = pd.DatetimeIndex(df['Date'])
+    df.ta.vwap(high='High', low='Low', close='Close', volume='Volume', append=True)
+    df.reset_index(drop=True, inplace=True)
+    df['vwap_reco'] = df.apply(lambda row: vwap_reco(row), axis=1)
 
     df.ta.obv(close='Close', volume='Volume', append=True)
     df['obv_reco'] = df.apply(lambda row: obv_reco(row), axis=1)
@@ -178,8 +185,8 @@ def stoch_reco(row):
 
 
 def bb_reco(row):
-    if row['Close'] <= row['BBL_20_2.0']: return 'Buy'
-    elif row['Close'] >= row['BBU_20_2.0']: return 'Sell'
+    if row['Close'] <= row['BBL_20_2.0_2.0']: return 'Buy'
+    elif row['Close'] >= row['BBU_20_2.0_2.0']: return 'Sell'
     return None
 
 
